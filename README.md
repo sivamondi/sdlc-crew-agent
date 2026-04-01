@@ -1,4 +1,4 @@
-# Cognia SDLC Crew
+# SDLC Crew
 
 An intelligent software development lifecycle automation platform that orchestrates multi-agent AI workflows to design, develop, and test software features — from idea to implementation-ready planning documents.
 
@@ -6,7 +6,7 @@ An intelligent software development lifecycle automation platform that orchestra
 
 ## What It Does
 
-Cognia SDLC Crew takes a feature description and your project context, then runs specialized AI agents (Architect, Developer, Tester) in a configurable workflow to produce a complete set of planning artifacts:
+SDLC Crew takes a feature description and your project context, then runs specialized AI agents (Architect, Developer, Tester) in a configurable workflow to produce a complete set of planning artifacts:
 
 - **Architecture Design** — system design, component breakdown, data models
 - **Implementation Plan** — step-by-step tasks ready for a developer (or Claude Code) to execute
@@ -223,7 +223,3 @@ Five tables managed via `server/schema.sql`:
 | `workflows` | Saved workflow graph definitions |
 
 ---
-
-## License
-
-Proprietary — Cognia. All rights reserved.
