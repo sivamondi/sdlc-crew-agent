@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1"/>
+      <stop offset="100%" style="stop-color:#8b5cf6"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a5b4fc"/>
+      <stop offset="100%" style="stop-color:#c4b5fd"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background rounded square -->
+  <rect x="16" y="16" width="480" height="480" rx="96" fill="url(#bg)"/>
+
+  <!-- Central agent (larger) -->
+  <circle cx="256" cy="200" r="52" fill="white" opacity="0.95"/>
+  <circle cx="240" cy="190" r="7" fill="#6366f1"/>
+  <circle cx="272" cy="190" r="7" fill="#6366f1"/>
+  <path d="M238 210 Q256 224 274 210" stroke="#6366f1" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <!-- Antenna -->
+  <line x1="256" y1="148" x2="256" y2="128" stroke="white" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="256" cy="122" r="8" fill="#a5b4fc"/>
+
+  <!-- Left agent (smaller) -->
+  <circle cx="136" cy="300" r="40" fill="white" opacity="0.85"/>
+  <circle cx="124" cy="292" r="5.5" fill="#10b981"/>
+  <circle cx="148" cy="292" r="5.5" fill="#10b981"/>
+  <path d="M124 310 Q136 320 148 310" stroke="#10b981" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <!-- Antenna -->
+  <line x1="136" y1="260" x2="136" y2="244" stroke="white" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="136" cy="238" r="6" fill="#6ee7b7"/>
+
+  <!-- Right agent (smaller) -->
+  <circle cx="376" cy="300" r="40" fill="white" opacity="0.85"/>
+  <circle cx="364" cy="292" r="5.5" fill="#f59e0b"/>
+  <circle cx="388" cy="292" r="5.5" fill="#f59e0b"/>
+  <path d="M364 310 Q376 320 388 310" stroke="#f59e0b" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <!-- Antenna -->
+  <line x1="376" y1="260" x2="376" y2="244" stroke="white" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="376" cy="238" r="6" fill="#fcd34d"/>
+
+  <!-- Connection lines (workflow flow) -->
+  <path d="M216 228 Q176 264 160 268" stroke="white" stroke-width="3" opacity="0.5" fill="none" stroke-linecap="round"/>
+  <path d="M296 228 Q336 264 352 268" stroke="white" stroke-width="3" opacity="0.5" fill="none" stroke-linecap="round"/>
+  <path d="M176 324 Q256 380 336 324" stroke="white" stroke-width="3" opacity="0.4" fill="none" stroke-dasharray="8 6" stroke-linecap="round"/>
+
+  <!-- Flow dots on lines -->
+  <circle cx="188" cy="248" r="4" fill="white" opacity="0.7"/>
+  <circle cx="324" cy="248" r="4" fill="white" opacity="0.7"/>
+  <circle cx="256" cy="370" r="4" fill="white" opacity="0.5"/>
+
+  <!-- Text: SDLC at bottom -->
+  <text x="256" y="430" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="48" font-weight="800" fill="white" opacity="0.9" letter-spacing="8">SDLC</text>
+  <text x="256" y="464" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="24" font-weight="500" fill="white" opacity="0.6" letter-spacing="4">CREW</text>
+</svg>

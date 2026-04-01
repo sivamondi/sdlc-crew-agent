@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CogniAIX - Home v4 (Dark Theme)</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0f; color: #e4e4e7; height: 100vh; overflow: hidden; }
+    .app { display: flex; height: 100vh; }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar { width: 260px; background: #111118; border-right: 1px solid #1e1e2a; display: flex; flex-direction: column; flex-shrink: 0; }
+    .sidebar-logo { padding: 20px; display: flex; align-items: center; gap: 10px; }
+    .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .logo-icon svg { width: 20px; height: 20px; }
+    .logo-name { font-size: 18px; font-weight: 700; color: #fff; }
+    .logo-name small { display: block; font-size: 10px; font-weight: 400; color: #71717a; margin-top: -1px; }
+    .sidebar-nav { padding: 8px 12px; }
+    .nav-group { font-size: 10px; font-weight: 600; color: #52525b; text-transform: uppercase; letter-spacing: 0.8px; padding: 12px 8px 6px; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; cursor: pointer; color: #a1a1aa; font-size: 13px; font-weight: 500; transition: all 0.12s; margin-bottom: 2px; }
+    .nav-item:hover { background: #18181f; color: #d4d4d8; }
+    .nav-item.active { background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.1)); color: #a78bfa; border: 1px solid rgba(139,92,246,0.2); }
+    .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .nav-count { margin-left: auto; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 8px; background: #27272a; color: #71717a; }
+    .nav-item.active .nav-count { background: rgba(139,92,246,0.2); color: #a78bfa; }
+    .nav-count.alert { background: rgba(239,68,68,0.15); color: #f87171; }
+    .sidebar-chats { flex: 1; overflow-y: auto; padding: 0 12px; }
+    .chat-item { padding: 7px 12px; font-size: 12px; color: #52525b; border-radius: 6px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .chat-item:hover { background: #18181f; color: #71717a; }
+    .sidebar-footer { border-top: 1px solid #1e1e2a; padding: 12px 16px; }
+    .user-row { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 10px; cursor: pointer; }
+    .user-row:hover { background: #18181f; }
+    .user-av { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, #6366f1, #ec4899); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+    .user-name { font-size: 13px; font-weight: 500; color: #d4d4d8; }
+    .user-plan { font-size: 11px; color: #52525b; }
+    .social-strip { display: flex; gap: 6px; padding: 8px 8px 0; }
+    .social-btn { width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #3f3f46; cursor: pointer; }
+    .social-btn:hover { background: #18181f; color: #71717a; }
+
+    /* ===== MAIN ===== */
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #0a0a0f; }
+
+    /* Top bar */
+    .top-bar { background: #111118; border-bottom: 1px solid #1e1e2a; padding: 16px 32px; display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+    .greeting { flex: 1; }
+    .greeting h1 { font-size: 22px; font-weight: 700; color: #fafafa; }
+    .greeting p { font-size: 13px; color: #52525b; margin-top: 2px; }
+    .search-pill { display: flex; align-items: center; gap: 8px; background: #18181f; border: 1px solid #27272a; border-radius: 10px; padding: 0 14px; height: 40px; width: 240px; }
+    .search-pill svg { width: 16px; height: 16px; color: #52525b; }
+    .search-pill input { border: none; background: none; outline: none; font-size: 13px; color: #d4d4d8; flex: 1; }
+    .search-pill input::placeholder { color: #3f3f46; }
+    .icon-btn { width: 40px; height: 40px; border-radius: 10px; border: 1px solid #27272a; background: #18181f; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #71717a; transition: all 0.15s; }
+    .icon-btn:hover { background: #27272a; color: #d4d4d8; }
+    .btn { padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; display: inline-flex; align-items: center; gap: 7px; }
+    .btn svg { width: 16px; height: 16px; }
+    .btn-glow-red { background: #ef4444; color: #fff; box-shadow: 0 0 20px rgba(239,68,68,0.3); }
+    .btn-glow-red:hover { box-shadow: 0 0 30px rgba(239,68,68,0.5); }
+    .btn-glow-amber { background: #f59e0b; color: #fff; box-shadow: 0 0 20px rgba(245,158,11,0.3); }
+    .btn-glow-amber:hover { box-shadow: 0 0 30px rgba(245,158,11,0.5); }
+    .btn-sm { padding: 7px 14px; font-size: 12px; }
+
+    /* Content */
+    .content { flex: 1; overflow-y: auto; padding: 24px 32px 100px; }
+    .content::-webkit-scrollbar { width: 6px; }
+    .content::-webkit-scrollbar-thumb { background: #27272a; border-radius: 3px; }
+
+    /* Stat cards */
+    .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
+    .stat-card { background: #111118; border: 1px solid #1e1e2a; border-radius: 16px; padding: 20px; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
+    .stat-card:hover { border-color: #27272a; box-shadow: 0 8px 32px rgba(0,0,0,0.3); transform: translateY(-2px); }
+    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+    .stat-card.indigo::before { background: linear-gradient(90deg, #6366f1, #818cf8); }
+    .stat-card.amber::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .stat-card.emerald::before { background: linear-gradient(90deg, #10b981, #34d399); }
+    .stat-card.violet::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+    .stat-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .stat-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+    .stat-icon.indigo { background: rgba(99,102,241,0.1); color: #818cf8; }
+    .stat-icon.amber { background: rgba(245,158,11,0.1); color: #fbbf24; }
+    .stat-icon.emerald { background: rgba(16,185,129,0.1); color: #34d399; }
+    .stat-icon.violet { background: rgba(139,92,246,0.1); color: #a78bfa; }
+    .stat-trend { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 20px; }
+    .trend-up { background: rgba(16,185,129,0.1); color: #34d399; }
+    .trend-neutral { background: rgba(113,113,122,0.1); color: #71717a; }
+    .stat-num { font-size: 32px; font-weight: 800; color: #fafafa; line-height: 1; margin-bottom: 4px; }
+    .stat-label { font-size: 13px; color: #52525b; }
+    .stat-bar { height: 3px; background: #1e1e2a; border-radius: 2px; margin-top: 14px; overflow: hidden; }
+    .stat-fill { height: 100%; border-radius: 2px; }
+    .stat-fill.indigo { background: linear-gradient(90deg, #6366f1, #818cf8); }
+    .stat-fill.amber { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .stat-fill.emerald { background: linear-gradient(90deg, #10b981, #34d399); }
+    .stat-fill.violet { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+
+    /* Section */
+    .section { margin-bottom: 28px; }
+    .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .section-title { font-size: 16px; font-weight: 700; color: #fafafa; display: flex; align-items: center; gap: 8px; }
+    .section-title svg { width: 20px; height: 20px; }
+    .section-badge { font-size: 11px; color: #52525b; font-weight: 400; }
+    .link { font-size: 12px; font-weight: 500; color: #818cf8; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+    .link:hover { color: #a78bfa; }
+    .link svg { width: 14px; height: 14px; }
+
+    /* Two column */
+    .two-col { display: grid; grid-template-columns: 1.6fr 1fr; gap: 16px; margin-bottom: 28px; }
+
+    /* Conversation list */
+    .card { background: #111118; border: 1px solid #1e1e2a; border-radius: 16px; overflow: hidden; }
+    .card-head { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1e1e2a; }
+    .card-title { font-size: 14px; font-weight: 600; color: #fafafa; display: flex; align-items: center; gap: 8px; }
+    .card-title svg { width: 16px; height: 16px; }
+    .cbadge { font-size: 10px; background: #27272a; color: #71717a; padding: 2px 8px; border-radius: 8px; }
+
+    .conv-item { display: flex; align-items: center; gap: 14px; padding: 14px 20px; border-bottom: 1px solid #141420; cursor: pointer; transition: background 0.1s; }
+    .conv-item:last-child { border-bottom: none; }
+    .conv-item:hover { background: #18181f; }
+    .conv-av { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .conv-av.a1 { background: rgba(99,102,241,0.1); color: #818cf8; }
+    .conv-av.a2 { background: rgba(16,185,129,0.1); color: #34d399; }
+    .conv-av.a3 { background: rgba(236,72,153,0.1); color: #f472b6; }
+    .conv-av.a4 { background: rgba(245,158,11,0.1); color: #fbbf24; }
+    .conv-body { flex: 1; min-width: 0; }
+    .conv-name { font-size: 13px; font-weight: 600; color: #e4e4e7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .conv-sub { font-size: 12px; color: #52525b; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .conv-dots { display: flex; gap: 4px; margin-top: 4px; }
+    .cdot { width: 6px; height: 6px; border-radius: 50%; }
+    .cdot.y { background: #fbbf24; }
+    .cdot.b { background: #818cf8; }
+    .cdot.g { background: #34d399; }
+    .conv-time { font-size: 11px; color: #3f3f46; flex-shrink: 0; text-align: right; }
+    .new-indicator { width: 8px; height: 8px; background: #818cf8; border-radius: 50%; margin-left: auto; margin-top: 4px; box-shadow: 0 0 8px rgba(129,140,248,0.5); }
+
+    /* Tasks */
+    .task-item { display: flex; align-items: center; gap: 12px; padding: 13px 20px; border-bottom: 1px solid #141420; }
+    .task-item:last-child { border-bottom: none; }
+    .task-item:hover { background: #18181f; }
+    .task-chk { width: 20px; height: 20px; border: 2px solid #3f3f46; border-radius: 6px; flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+    .task-chk.done { background: #10b981; border-color: #10b981; }
+    .task-chk.done::after { content: ''; width: 5px; height: 9px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); margin-top: -2px; }
+    .task-body { flex: 1; }
+    .task-name { font-size: 13px; font-weight: 500; color: #d4d4d8; }
+    .task-name.done { text-decoration: line-through; color: #52525b; }
+    .task-due { font-size: 11px; color: #3f3f46; margin-top: 2px; }
+    .priority { font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px; flex-shrink: 0; }
+    .p-high { background: rgba(239,68,68,0.1); color: #f87171; }
+    .p-med { background: rgba(245,158,11,0.1); color: #fbbf24; }
+    .p-low { background: rgba(16,185,129,0.1); color: #34d399; }
+
+    /* Bottom panels */
+    .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .mini-item { display: flex; align-items: center; gap: 12px; padding: 12px 20px; border-bottom: 1px solid #141420; cursor: pointer; transition: background 0.1s; }
+    .mini-item:last-child { border-bottom: none; }
+    .mini-item:hover { background: #18181f; }
+    .mi-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .mi-icon.folder { background: rgba(16,185,129,0.1); color: #34d399; }
+    .mi-icon.share { background: rgba(139,92,246,0.1); color: #a78bfa; }
+    .mi-body { flex: 1; min-width: 0; }
+    .mi-name { font-size: 13px; font-weight: 500; color: #d4d4d8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .mi-meta { font-size: 11px; color: #3f3f46; }
+    .mi-arrow { color: #27272a; }
+    .panel-add { padding: 12px 20px; text-align: center; border-top: 1px solid #1e1e2a; }
+    .panel-add a { font-size: 12px; font-weight: 500; color: #818cf8; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+    .panel-add a:hover { color: #a78bfa; }
+    .panel-add a svg { width: 14px; height: 14px; }
+
+    /* Activity */
+    .tl { padding: 16px 20px; }
+    .tl-item { display: flex; gap: 12px; margin-bottom: 14px; position: relative; }
+    .tl-item:not(:last-child)::after { content: ''; position: absolute; left: 15px; top: 32px; bottom: -14px; width: 1px; background: #1e1e2a; }
+    .tl-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .tl-dot.indigo { background: rgba(99,102,241,0.1); color: #818cf8; }
+    .tl-dot.amber { background: rgba(245,158,11,0.1); color: #fbbf24; }
+    .tl-dot.violet { background: rgba(139,92,246,0.1); color: #a78bfa; }
+    .tl-text { font-size: 13px; color: #a1a1aa; }
+    .tl-text strong { color: #d4d4d8; font-weight: 600; }
+    .tl-time { font-size: 11px; color: #3f3f46; margin-top: 2px; }
+
+    /* Ask bar */
+    .ask-bar { position: fixed; bottom: 0; left: 260px; right: 0; background: #111118; border-top: 1px solid #1e1e2a; padding: 14px 32px; display: flex; gap: 10px; align-items: center; z-index: 10; }
+    .ask-input { flex: 1; border: 1.5px solid #27272a; border-radius: 14px; padding: 12px 20px; font-size: 14px; color: #e4e4e7; background: #18181f; outline: none; transition: all 0.15s; }
+    .ask-input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
+    .ask-input::placeholder { color: #3f3f46; }
+    .ask-btn { width: 44px; height: 44px; border-radius: 12px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+    .ask-mic { background: #18181f; color: #52525b; border: 1px solid #27272a; }
+    .ask-mic:hover { background: #27272a; color: #a1a1aa; }
+    .ask-send { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; box-shadow: 0 0 20px rgba(99,102,241,0.3); }
+    .ask-send:hover { box-shadow: 0 0 30px rgba(99,102,241,0.5); }
+  </style>
+</head>
+<body>
+<div class="app">
+  <!-- ===== SIDEBAR ===== -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M7 12a5 5 0 1 1 10 0 5 5 0 0 1-10 0z" fill="#fff" opacity="0.3"/><path d="M10 9a3 3 0 0 1 3 3" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></div>
+      <div class="logo-name">CogniAIX<small>AI Meeting Assistant</small></div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-group">Main</div>
+      <div class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Dashboard</div>
+      <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Conversations<span class="nav-count alert">3</span></div>
+      <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Tasks<span class="nav-count">3</span></div>
+      <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Contacts</div>
+      <div class="nav-group">Organize</div>
+      <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Groups<span class="nav-count">1</span></div>
+      <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Shared<span class="nav-count">2</span></div>
+      <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-2.82 1.18V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1.08-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 3.17 14H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1.08 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 0 1 0 4h-.09c-.658.003-1.25.396-1.51 1z"/></svg>Settings</div>
+    </div>
+    <div class="nav-group" style="padding:12px 20px 6px">Chats</div>
+    <div class="sidebar-chats">
+      <div class="chat-item">Show me longest session l</div>
+      <div class="chat-item">much more safer but when</div>
+      <div class="chat-item">what do you think about t</div>
+      <div class="chat-item">Provide meeting insights</div>
+      <div class="chat-item">highlights from last meet</div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-row"><div class="user-av">SR</div><div><div class="user-name">Siva Ramarao</div><div class="user-plan">Pro Plan</div></div></div>
+      <div class="social-strip">
+        <div class="social-btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 1 1 0-4.13 2.062 2.062 0 0 1 0 4.13zm1.782 13.019H3.555V9h3.564v11.452z"/></svg></div>
+        <div class="social-btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></div>
+        <div class="social-btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12s.014 3.668.072 4.948c.2 4.358 2.618 6.78 6.98 6.98 1.28.058 1.689.072 4.948.072s3.668-.014 4.948-.072c4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948s-.014-3.667-.072-4.947c-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/></svg></div>
+        <div class="social-btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MAIN ===== -->
+  <div class="main">
+    <div class="top-bar">
+      <div class="greeting"><h1>Good evening, Siva</h1><p>Thursday, March 26, 2026</p></div>
+      <div class="search-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input placeholder="Search..."></div>
+      <button class="icon-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
+      <button class="btn btn-glow-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>Transcribe</button>
+      <button class="btn btn-glow-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Upload</button>
+    </div>
+
+    <div class="content">
+      <!-- Stats -->
+      <div class="stat-row">
+        <div class="stat-card indigo"><div class="stat-head"><div class="stat-icon indigo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><span class="stat-trend trend-up">+3 today</span></div><div class="stat-num">7</div><div class="stat-label">Conversations</div><div class="stat-bar"><div class="stat-fill indigo" style="width:70%"></div></div></div>
+        <div class="stat-card amber"><div class="stat-head"><div class="stat-icon amber"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><span class="stat-trend trend-neutral">1 due</span></div><div class="stat-num">3</div><div class="stat-label">Open Tasks</div><div class="stat-bar"><div class="stat-fill amber" style="width:40%"></div></div></div>
+        <div class="stat-card emerald"><div class="stat-head"><div class="stat-icon emerald"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div><span class="stat-trend trend-up">Active</span></div><div class="stat-num">1</div><div class="stat-label">Groups</div><div class="stat-bar"><div class="stat-fill emerald" style="width:20%"></div></div></div>
+        <div class="stat-card violet"><div class="stat-head"><div class="stat-icon violet"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/></svg></div><span class="stat-trend trend-neutral">2 items</span></div><div class="stat-num">2</div><div class="stat-label">Shared</div><div class="stat-bar"><div class="stat-fill violet" style="width:30%"></div></div></div>
+      </div>
+
+      <!-- Two-col: Conversations + Tasks -->
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Recent Conversations <span class="cbadge">7</span></div><a class="link">View All <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a></div>
+          <div>
+            <div class="conv-item"><div class="conv-av a1"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="conv-body"><div class="conv-name">Conv_2026-03-26_09_53</div><div class="conv-sub">Discussion about Q1 product roadmap...</div><div class="conv-dots"><div class="cdot y"></div><div class="cdot b"></div><div class="cdot g"></div></div></div><div class="conv-time">8:49 PM<div class="new-indicator"></div></div></div>
+            <div class="conv-item"><div class="conv-av a2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="conv-body"><div class="conv-name">Conv_2026-03-24_16_41</div><div class="conv-sub">Weekly standup — sprint progress and blockers...</div><div class="conv-dots"><div class="cdot y"></div><div class="cdot b"></div><div class="cdot g"></div></div></div><div class="conv-time">2:36 AM</div></div>
+            <div class="conv-item"><div class="conv-av a3"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="conv-body"><div class="conv-name">Conv_2026-03-24_11_13</div><div class="conv-sub">A meeting with seven to eight people...</div><div class="conv-dots"><div class="cdot y"></div><div class="cdot b"></div><div class="cdot g"></div></div></div><div class="conv-time">8:48 PM</div></div>
+            <div class="conv-item"><div class="conv-av a4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div><div class="conv-body"><div class="conv-name">Conv_2026-03-24_08_48</div><div class="conv-sub">Client onboarding process review...</div><div class="conv-dots"><div class="cdot y"></div><div class="cdot g"></div></div></div><div class="conv-time">6:29 PM</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Tasks <span class="cbadge">3</span></div><a class="link">View All <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a></div>
+          <div>
+            <div class="task-item"><div class="task-chk" onclick="this.classList.toggle('done');this.closest('.task-item').querySelector('.task-name').classList.toggle('done')"></div><div class="task-body"><div class="task-name">Submit New UI Design Screenshots</div><div class="task-due">Due today</div></div><span class="priority p-high">High</span></div>
+            <div class="task-item"><div class="task-chk" onclick="this.classList.toggle('done');this.closest('.task-item').querySelector('.task-name').classList.toggle('done')"></div><div class="task-body"><div class="task-name">Conduct Three Cognia App User Sessions</div><div class="task-due">Due today</div></div><span class="priority p-med">Med</span></div>
+            <div class="task-item"><div class="task-chk" onclick="this.classList.toggle('done');this.closest('.task-item').querySelector('.task-name').classList.toggle('done')"></div><div class="task-body"><div class="task-name">Redesign Cognia Bot Integration Setup</div><div class="task-due">Due today</div></div><span class="priority p-low">Low</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom: Grouped + Shared + Activity -->
+      <div class="three-col">
+        <div class="card">
+          <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Grouped <span class="cbadge">1</span></div></div>
+          <div class="mini-item"><div class="mi-icon folder"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div><div class="mi-body"><div class="mi-name">test</div><div class="mi-meta">1 meeting</div></div><svg class="mi-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+          <div class="panel-add"><a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Create Group</a></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/></svg>Shared <span class="cbadge">2</span></div></div>
+          <div class="mini-item"><div class="mi-icon share"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/></svg></div><div class="mi-body"><div class="mi-name">Merge_2026_03_20_14_28</div><div class="mi-meta">Mar 20 &bull; 11:59 PM</div></div></div>
+          <div class="mini-item"><div class="mi-icon share"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/></svg></div><div class="mi-body"><div class="mi-name">TEMPLATE BRD</div><div class="mi-meta">Mar 13 &bull; 5:03 PM</div></div></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="#71717a" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Activity</div></div>
+          <div class="tl">
+            <div class="tl-item"><div class="tl-dot indigo"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div><div class="tl-text"><strong>Conv_09_53</strong> transcribed</div><div class="tl-time">Today, 8:49 PM</div></div></div>
+            <div class="tl-item"><div class="tl-dot amber"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div><div><div class="tl-text"><strong>UI Screenshots</strong> task created</div><div class="tl-time">Today, 6:15 PM</div></div></div>
+            <div class="tl-item"><div class="tl-dot violet"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/></svg></div><div><div class="tl-text"><strong>Merge_14_28</strong> shared</div><div class="tl-time">Mar 20, 11:59 PM</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ask-bar">
+      <input class="ask-input" placeholder="Ask Cognia anything about your meetings...">
+      <button class="ask-btn ask-mic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg></button>
+      <button class="ask-btn ask-send"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

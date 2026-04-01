@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CogniAIX - Contacts Management</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f9fb; color: #1a1d27; height: 100vh; overflow: hidden; }
+
+    /* Layout */
+    .app { display: flex; height: 100vh; }
+
+    /* Left Sidebar - Navigation */
+    .sidebar { width: 240px; background: #fff; border-right: 1px solid #e5e7eb; display: flex; flex-direction: column; flex-shrink: 0; }
+    .sidebar-logo { padding: 16px 20px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #e5e7eb; }
+    .sidebar-logo svg { width: 32px; height: 32px; }
+    .sidebar-logo span { font-size: 18px; font-weight: 700; color: #1e40af; }
+    .sidebar-nav { padding: 12px 8px; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; cursor: pointer; color: #4b5563; font-size: 14px; font-weight: 500; transition: all 0.15s; }
+    .nav-item:hover { background: #f0f1f5; color: #1a1d27; }
+    .nav-item.active { background: #eff6ff; color: #1e40af; }
+    .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .sidebar-section-title { padding: 16px 12px 6px; font-size: 11px; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px; }
+    .chat-list { flex: 1; overflow-y: auto; padding: 0 8px; }
+    .chat-item { padding: 8px 12px; font-size: 13px; color: #6b7280; border-radius: 6px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .chat-item:hover { background: #f0f1f5; }
+    .sidebar-footer { padding: 12px 16px; border-top: 1px solid #e5e7eb; display: flex; align-items: center; gap: 8px; }
+    .avatar-sm { width: 28px; height: 28px; border-radius: 50%; background: #1e40af; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+    .sidebar-footer span { font-size: 13px; font-weight: 500; color: #1a1d27; }
+
+    /* Main Content */
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* Top Header */
+    .top-header { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 0 32px; height: 56px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #9ca3af; }
+    .breadcrumb .current { color: #1a1d27; font-weight: 600; }
+    .header-actions { display: flex; align-items: center; gap: 12px; }
+    .icon-btn { width: 36px; height: 36px; border-radius: 8px; border: 1px solid #e5e7eb; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #6b7280; transition: all 0.15s; }
+    .icon-btn:hover { background: #f0f1f5; color: #1a1d27; }
+
+    /* Content Area */
+    .content { flex: 1; display: flex; overflow: hidden; }
+
+    /* Tabs Bar */
+    .tabs-bar { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 0 32px; display: flex; align-items: stretch; height: 48px; flex-shrink: 0; }
+    .tab { padding: 0 20px; font-size: 14px; font-weight: 500; color: #6b7280; cursor: pointer; border-bottom: 2px solid transparent; display: flex; align-items: center; gap: 8px; transition: all 0.15s; }
+    .tab:hover { color: #1a1d27; }
+    .tab.active { color: #1e40af; border-bottom-color: #1e40af; }
+    .tab .badge { background: #e5e7eb; color: #4b5563; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; }
+    .tab.active .badge { background: #dbeafe; color: #1e40af; }
+
+    /* Views */
+    .view { display: none; flex: 1; overflow: hidden; }
+    .view.active { display: flex; }
+
+    /* Contact List + Detail Panel */
+    .list-panel { width: 360px; background: #fff; border-right: 1px solid #e5e7eb; display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden; }
+    .list-header { padding: 16px 20px; border-bottom: 1px solid #e5e7eb; }
+    .search-box { display: flex; align-items: center; background: #f8f9fb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 0 12px; height: 36px; }
+    .search-box svg { width: 16px; height: 16px; color: #9ca3af; flex-shrink: 0; }
+    .search-box input { border: none; background: none; outline: none; font-size: 13px; padding-left: 8px; flex: 1; color: #1a1d27; }
+    .search-box input::placeholder { color: #9ca3af; }
+    .list-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .btn { padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+    .btn svg { width: 16px; height: 16px; }
+    .btn-primary { background: #1e40af; color: #fff; }
+    .btn-primary:hover { background: #1e3a8a; }
+    .btn-outline { background: #fff; color: #4b5563; border: 1px solid #e5e7eb; }
+    .btn-outline:hover { background: #f8f9fb; }
+    .btn-danger { background: #fff; color: #dc2626; border: 1px solid #fecaca; }
+    .btn-danger:hover { background: #fef2f2; }
+    .btn-danger-solid { background: #dc2626; color: #fff; }
+    .btn-danger-solid:hover { background: #b91c1c; }
+    .btn-success { background: #059669; color: #fff; }
+    .btn-success:hover { background: #047857; }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+    .btn-block { width: 100%; justify-content: center; }
+
+    /* Contact List Items */
+    .contact-list { flex: 1; overflow-y: auto; }
+    .contact-item { display: flex; align-items: center; gap: 12px; padding: 12px 20px; cursor: pointer; border-bottom: 1px solid #f0f1f5; transition: all 0.1s; }
+    .contact-item:hover { background: #f8f9fb; }
+    .contact-item.selected { background: #eff6ff; border-right: 3px solid #1e40af; }
+    .contact-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; color: #fff; flex-shrink: 0; }
+    .bg-blue { background: #1e40af; }
+    .bg-green { background: #059669; }
+    .bg-purple { background: #7c3aed; }
+    .bg-orange { background: #d97706; }
+    .bg-pink { background: #db2777; }
+    .bg-teal { background: #0891b2; }
+    .contact-info { flex: 1; min-width: 0; }
+    .contact-name { font-size: 14px; font-weight: 500; color: #1a1d27; }
+    .contact-email { font-size: 12px; color: #9ca3af; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Detail Panel */
+    .detail-panel { flex: 1; overflow-y: auto; background: #f8f9fb; }
+    .detail-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #9ca3af; }
+    .detail-empty svg { width: 48px; height: 48px; margin-bottom: 12px; }
+    .detail-empty p { font-size: 14px; }
+
+    /* Form Panel */
+    .form-panel { padding: 32px; max-width: 640px; }
+    .form-title { font-size: 20px; font-weight: 600; color: #1a1d27; margin-bottom: 4px; }
+    .form-subtitle { font-size: 13px; color: #9ca3af; margin-bottom: 24px; }
+    .form-section { margin-bottom: 24px; }
+    .form-section-title { font-size: 12px; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #e5e7eb; }
+    .form-row { display: flex; gap: 16px; margin-bottom: 16px; }
+    .form-group { flex: 1; }
+    .form-label { display: block; font-size: 13px; font-weight: 500; color: #4b5563; margin-bottom: 6px; }
+    .form-input { width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; color: #1a1d27; background: #fff; outline: none; transition: border 0.15s; }
+    .form-input:focus { border-color: #1e40af; box-shadow: 0 0 0 3px rgba(30,64,175,0.1); }
+    .form-input::placeholder { color: #d1d5db; }
+    .form-textarea { min-height: 80px; resize: vertical; }
+    .form-select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; }
+    .form-actions { display: flex; gap: 12px; margin-top: 24px; padding-top: 20px; border-top: 1px solid #e5e7eb; }
+    .form-hint { font-size: 12px; color: #9ca3af; margin-top: 4px; }
+
+    /* Contact Detail View */
+    .contact-detail-header { background: #fff; padding: 32px; border-bottom: 1px solid #e5e7eb; display: flex; align-items: flex-start; gap: 20px; }
+    .contact-detail-avatar { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 600; color: #fff; flex-shrink: 0; }
+    .contact-detail-info { flex: 1; }
+    .contact-detail-name { font-size: 22px; font-weight: 600; color: #1a1d27; }
+    .contact-detail-role { font-size: 14px; color: #6b7280; margin-top: 2px; }
+    .contact-detail-actions { display: flex; gap: 8px; }
+    .contact-detail-body { padding: 24px 32px; }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .detail-field { }
+    .detail-field-label { font-size: 12px; font-weight: 500; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 4px; }
+    .detail-field-value { font-size: 14px; color: #1a1d27; }
+    .detail-card { background: #fff; border-radius: 12px; border: 1px solid #e5e7eb; padding: 20px; margin-bottom: 16px; }
+    .detail-card-title { font-size: 14px; font-weight: 600; color: #1a1d27; margin-bottom: 12px; }
+
+    /* Inline Edit Mode */
+    .inline-edit .form-input { border-color: #1e40af; background: #eff6ff; }
+
+    /* Group View */
+    .group-list-panel { width: 320px; background: #fff; border-right: 1px solid #e5e7eb; display: flex; flex-direction: column; flex-shrink: 0; }
+    .group-item { display: flex; align-items: center; gap: 12px; padding: 14px 20px; cursor: pointer; border-bottom: 1px solid #f0f1f5; transition: all 0.1s; }
+    .group-item:hover { background: #f8f9fb; }
+    .group-item.selected { background: #eff6ff; border-right: 3px solid #1e40af; }
+    .group-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .group-icon.blue { background: #dbeafe; color: #1e40af; }
+    .group-icon.green { background: #d1fae5; color: #059669; }
+    .group-icon.purple { background: #ede9fe; color: #7c3aed; }
+    .group-icon.orange { background: #fef3c7; color: #d97706; }
+    .group-info { flex: 1; min-width: 0; }
+    .group-name { font-size: 14px; font-weight: 500; color: #1a1d27; }
+    .group-count { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+
+    /* Group Detail */
+    .group-detail { flex: 1; overflow-y: auto; background: #f8f9fb; }
+    .group-detail-header { background: #fff; padding: 24px 32px; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: space-between; }
+    .group-detail-title { font-size: 20px; font-weight: 600; color: #1a1d27; }
+    .group-detail-subtitle { font-size: 13px; color: #9ca3af; margin-top: 2px; }
+    .group-members { padding: 24px 32px; }
+    .member-item { display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px 16px; margin-bottom: 8px; }
+    .member-item .contact-info { flex: 1; }
+    .member-actions { display: flex; gap: 8px; }
+    .remove-btn { color: #dc2626; background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 4px; }
+    .remove-btn:hover { background: #fef2f2; }
+    .remove-btn svg { width: 14px; height: 14px; }
+
+    /* Add members to group */
+    .add-member-section { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; margin-top: 16px; }
+    .add-member-section .search-box { margin-bottom: 12px; }
+    .selectable-contact { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; cursor: pointer; transition: all 0.1s; }
+    .selectable-contact:hover { background: #f0f1f5; }
+    .checkbox { width: 18px; height: 18px; border: 2px solid #d1d5db; border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .checkbox.checked { background: #1e40af; border-color: #1e40af; }
+    .checkbox.checked svg { color: #fff; }
+
+    /* Delete Confirmation (Inline) */
+    .delete-confirm { background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 20px; margin-top: 16px; }
+    .delete-confirm-title { font-size: 16px; font-weight: 600; color: #dc2626; display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .delete-confirm-title svg { width: 20px; height: 20px; }
+    .delete-confirm-text { font-size: 13px; color: #6b7280; margin-bottom: 16px; line-height: 1.5; }
+    .delete-confirm-actions { display: flex; gap: 12px; }
+
+    /* Success Toast (inline) */
+    .success-banner { background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 12px 16px; display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+    .success-banner svg { width: 18px; height: 18px; color: #059669; flex-shrink: 0; }
+    .success-banner span { font-size: 13px; color: #065f46; font-weight: 500; }
+
+    /* Empty States */
+    .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; text-align: center; }
+    .empty-state svg { width: 56px; height: 56px; color: #d1d5db; margin-bottom: 16px; }
+    .empty-state h3 { font-size: 16px; font-weight: 600; color: #4b5563; margin-bottom: 4px; }
+    .empty-state p { font-size: 13px; color: #9ca3af; max-width: 280px; }
+
+    /* Screen navigation */
+    .screen { display: none; flex: 1; overflow: hidden; }
+    .screen.active { display: flex; }
+
+    /* Responsive tweaks */
+    .tag { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+    .tag-blue { background: #dbeafe; color: #1e40af; }
+    .tag-green { background: #d1fae5; color: #059669; }
+    .tag-purple { background: #ede9fe; color: #7c3aed; }
+    .tag-orange { background: #fef3c7; color: #92400e; }
+
+    /* Divider */
+    .divider { height: 1px; background: #e5e7eb; margin: 16px 0; }
+
+    /* Screen title bar for inner navigation */
+    .screen-nav { display: flex; gap: 4px; background: #f0f1f5; border-radius: 10px; padding: 4px; margin-bottom: 20px; }
+    .screen-nav-btn { padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; color: #6b7280; cursor: pointer; border: none; background: none; transition: all 0.15s; }
+    .screen-nav-btn.active { background: #fff; color: #1a1d27; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .screen-nav-btn:hover:not(.active) { color: #1a1d27; }
+
+    .scroll-y { overflow-y: auto; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Left Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-logo">
+        <svg viewBox="0 0 32 32" fill="none">
+          <circle cx="16" cy="16" r="14" fill="#1e40af"/>
+          <path d="M10 16a6 6 0 1 1 12 0 6 6 0 0 1-12 0z" fill="#fff" opacity="0.3"/>
+          <path d="M14 12a4 4 0 0 1 4 4" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span>CogniAIX</span>
+      </div>
+      <div class="sidebar-nav">
+        <div class="nav-item" onclick="window.location.reload()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Home
+        </div>
+        <div class="nav-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Contacts
+        </div>
+      </div>
+      <div class="sidebar-section-title">Chats</div>
+      <div class="chat-list">
+        <div class="chat-item">Show me longest session l</div>
+        <div class="chat-item">much more safer but when</div>
+        <div class="chat-item">what do you think about t</div>
+        <div class="chat-item">based this intervie what</div>
+        <div class="chat-item">Provide meeting insights</div>
+        <div class="chat-item">Provide meeting insights</div>
+        <div class="chat-item">Hi</div>
+        <div class="chat-item">highlights from last meet</div>
+        <div class="chat-item">hi</div>
+      </div>
+      <div class="sidebar-footer">
+        <div class="avatar-sm">SR</div>
+        <span>Siva Ramarao</span>
+      </div>
+    </div>
+
+    <!-- Main Area -->
+    <div class="main">
+      <!-- Top Header -->
+      <div class="top-header">
+        <div class="breadcrumb">
+          <span>Settings</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          <span class="current" id="breadcrumb-text">Contacts</span>
+        </div>
+        <div class="header-actions">
+          <button class="icon-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs-bar">
+        <div class="tab active" onclick="switchTab('contacts')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Contacts
+          <span class="badge" id="contact-count">6</span>
+        </div>
+        <div class="tab" onclick="switchTab('groups')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Groups
+          <span class="badge" id="group-count">3</span>
+        </div>
+      </div>
+
+      <!-- ==================== CONTACTS TAB ==================== -->
+      <div class="view active" id="view-contacts">
+
+        <!-- Screen 1: Contact List + Detail/Add/Edit -->
+        <div class="screen active" id="screen-contact-list">
+          <!-- Left: Contact List -->
+          <div class="list-panel">
+            <div class="list-header">
+              <div class="search-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" placeholder="Search contacts..." id="contact-search" oninput="filterContacts()">
+              </div>
+              <div class="list-actions">
+                <button class="btn btn-primary btn-sm" onclick="showAddContact()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Add contact
+                </button>
+              </div>
+            </div>
+            <div class="contact-list" id="contact-list">
+              <!-- Contacts rendered by JS -->
+            </div>
+          </div>
+
+          <!-- Right: Detail Panel -->
+          <div class="detail-panel" id="detail-panel">
+            <!-- Default empty state -->
+            <div class="detail-empty" id="detail-empty">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <p>Select a contact to view details</p>
+            </div>
+
+            <!-- Contact Detail View -->
+            <div id="contact-detail-view" style="display:none">
+              <div class="contact-detail-header">
+                <div class="contact-detail-avatar bg-blue" id="detail-avatar">JD</div>
+                <div class="contact-detail-info">
+                  <div class="contact-detail-name" id="detail-name">John Doe</div>
+                  <div class="contact-detail-role" id="detail-role">Software Engineer</div>
+                </div>
+                <div class="contact-detail-actions">
+                  <button class="btn btn-outline btn-sm" onclick="showEditContact()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    Edit
+                  </button>
+                  <button class="btn btn-danger btn-sm" onclick="showDeleteContact()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    Delete
+                  </button>
+                </div>
+              </div>
+              <div class="contact-detail-body scroll-y">
+                <!-- Success banner (hidden by default) -->
+                <div id="contact-success-banner" class="success-banner" style="display:none">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  <span id="contact-success-text">Contact updated successfully!</span>
+                </div>
+
+                <!-- Delete confirmation (hidden by default) -->
+                <div id="delete-contact-confirm" class="delete-confirm" style="display:none">
+                  <div class="delete-confirm-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    Delete this contact?
+                  </div>
+                  <div class="delete-confirm-text">
+                    This will permanently remove <strong id="delete-contact-name">John Doe</strong> from your contacts. This action cannot be undone. Any group memberships will also be removed.
+                  </div>
+                  <div class="delete-confirm-actions">
+                    <button class="btn btn-danger-solid btn-sm" onclick="confirmDeleteContact()">Yes, delete contact</button>
+                    <button class="btn btn-outline btn-sm" onclick="hideDeleteContact()">Cancel</button>
+                  </div>
+                </div>
+
+                <div class="detail-card" id="detail-info-card">
+                  <div class="detail-card-title">Contact Information</div>
+                  <div class="detail-grid">
+                    <div class="detail-field">
+                      <div class="detail-field-label">Email</div>
+                      <div class="detail-field-value" id="detail-email">john.doe@example.com</div>
+                    </div>
+                    <div class="detail-field">
+                      <div class="detail-field-label">Phone</div>
+                      <div class="detail-field-value" id="detail-phone">+1 (555) 123-4567</div>
+                    </div>
+                    <div class="detail-field">
+                      <div class="detail-field-label">Company</div>
+                      <div class="detail-field-value" id="detail-company">Acme Corp</div>
+                    </div>
+                    <div class="detail-field">
+                      <div class="detail-field-label">Location</div>
+                      <div class="detail-field-value" id="detail-location">San Francisco, CA</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="detail-card">
+                  <div class="detail-card-title">Groups</div>
+                  <div id="detail-groups">
+                    <span class="tag tag-blue">Engineering</span>
+                    <span class="tag tag-green">Project Alpha</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Add Contact Form -->
+            <div id="add-contact-form" style="display:none" class="scroll-y">
+              <div class="form-panel">
+                <div class="form-title">Add New Contact</div>
+                <div class="form-subtitle">Fill in the details to create a new contact.</div>
+
+                <div id="add-contact-success" class="success-banner" style="display:none">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  <span>Contact created successfully!</span>
+                </div>
+
+                <div class="form-section">
+                  <div class="form-section-title">Personal Information</div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">First Name *</label>
+                      <input type="text" class="form-input" placeholder="e.g. John" id="add-first-name">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Last Name *</label>
+                      <input type="text" class="form-input" placeholder="e.g. Doe" id="add-last-name">
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">Email *</label>
+                      <input type="email" class="form-input" placeholder="e.g. john@example.com" id="add-email">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Phone</label>
+                      <input type="tel" class="form-input" placeholder="e.g. +1 (555) 123-4567" id="add-phone">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-section">
+                  <div class="form-section-title">Professional Details</div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">Company</label>
+                      <input type="text" class="form-input" placeholder="e.g. Acme Corp" id="add-company">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Job Title</label>
+                      <input type="text" class="form-input" placeholder="e.g. Software Engineer" id="add-title">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Location</label>
+                    <input type="text" class="form-input" placeholder="e.g. San Francisco, CA" id="add-location">
+                  </div>
+                </div>
+
+                <div class="form-section">
+                  <div class="form-section-title">Notes</div>
+                  <div class="form-group">
+                    <textarea class="form-input form-textarea" placeholder="Add any notes about this contact..." id="add-notes"></textarea>
+                  </div>
+                </div>
+
+                <div class="form-actions">
+                  <button class="btn btn-primary" onclick="saveNewContact()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    Save Contact
+                  </button>
+                  <button class="btn btn-outline" onclick="cancelAddContact()">Cancel</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Edit Contact Form -->
+            <div id="edit-contact-form" style="display:none" class="scroll-y">
+              <div class="form-panel">
+                <div class="form-title">Edit Contact</div>
+                <div class="form-subtitle">Update the contact information below.</div>
+
+                <div class="form-section">
+                  <div class="form-section-title">Personal Information</div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">First Name *</label>
+                      <input type="text" class="form-input" id="edit-first-name">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Last Name *</label>
+                      <input type="text" class="form-input" id="edit-last-name">
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">Email *</label>
+                      <input type="email" class="form-input" id="edit-email">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Phone</label>
+                      <input type="tel" class="form-input" id="edit-phone">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-section">
+                  <div class="form-section-title">Professional Details</div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">Company</label>
+                      <input type="text" class="form-input" id="edit-company">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Job Title</label>
+                      <input type="text" class="form-input" id="edit-title">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Location</label>
+                    <input type="text" class="form-input" id="edit-location">
+                  </div>
+                </div>
+
+                <div class="form-section">
+                  <div class="form-section-title">Notes</div>
+                  <div class="form-group">
+                    <textarea class="form-input form-textarea" id="edit-notes"></textarea>
+                  </div>
+                </div>
+
+                <div class="form-actions">
+                  <button class="btn btn-primary" onclick="saveEditContact()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                    Save Changes
+                  </button>
+                  <button class="btn btn-outline" onclick="cancelEditContact()">Cancel</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== GROUPS TAB ==================== -->
+      <div class="view" id="view-groups">
+        <div class="screen active" id="screen-group-list">
+          <!-- Left: Group List -->
+          <div class="group-list-panel">
+            <div class="list-header">
+              <div class="search-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" placeholder="Search groups...">
+              </div>
+              <div class="list-actions">
+                <button class="btn btn-primary btn-sm" onclick="showCreateGroup()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Create group
+                </button>
+              </div>
+            </div>
+            <div id="group-list">
+              <!-- Groups rendered by JS -->
+            </div>
+          </div>
+
+          <!-- Right: Group Detail -->
+          <div class="group-detail" id="group-detail-panel">
+            <!-- Default empty -->
+            <div class="detail-empty" id="group-empty">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <p>Select a group to manage members</p>
+            </div>
+
+            <!-- Group Detail View -->
+            <div id="group-detail-view" style="display:none" class="scroll-y">
+              <div class="group-detail-header">
+                <div>
+                  <div class="group-detail-title" id="group-detail-name">Engineering</div>
+                  <div class="group-detail-subtitle" id="group-detail-desc">Core engineering team</div>
+                </div>
+                <div style="display:flex; gap:8px">
+                  <button class="btn btn-outline btn-sm" onclick="showEditGroup()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    Edit
+                  </button>
+                  <button class="btn btn-danger btn-sm" onclick="showDeleteGroup()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    Delete Group
+                  </button>
+                </div>
+              </div>
+
+              <div class="group-members" id="group-members-area">
+                <!-- Success banner -->
+                <div id="group-success-banner" class="success-banner" style="display:none">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  <span id="group-success-text">Member removed successfully!</span>
+                </div>
+
+                <!-- Delete Group Confirmation -->
+                <div id="delete-group-confirm" class="delete-confirm" style="display:none">
+                  <div class="delete-confirm-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    Delete this group?
+                  </div>
+                  <div class="delete-confirm-text">
+                    This will permanently delete <strong id="delete-group-name">Engineering</strong> and remove all member associations. The contacts themselves will not be deleted.
+                  </div>
+                  <div class="delete-confirm-actions">
+                    <button class="btn btn-danger-solid btn-sm" onclick="confirmDeleteGroup()">Yes, delete group</button>
+                    <button class="btn btn-outline btn-sm" onclick="hideDeleteGroup()">Cancel</button>
+                  </div>
+                </div>
+
+                <!-- Edit group inline -->
+                <div id="edit-group-section" style="display:none">
+                  <div class="detail-card">
+                    <div class="detail-card-title">Edit Group</div>
+                    <div class="form-group" style="margin-bottom:12px">
+                      <label class="form-label">Group Name *</label>
+                      <input type="text" class="form-input" id="edit-group-name">
+                    </div>
+                    <div class="form-group" style="margin-bottom:12px">
+                      <label class="form-label">Description</label>
+                      <input type="text" class="form-input" id="edit-group-desc">
+                    </div>
+                    <div style="display:flex; gap:8px">
+                      <button class="btn btn-primary btn-sm" onclick="saveEditGroup()">Save</button>
+                      <button class="btn btn-outline btn-sm" onclick="cancelEditGroup()">Cancel</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px">
+                  <h3 style="font-size:15px; font-weight:600; color:#1a1d27" id="members-title">Members (3)</h3>
+                  <button class="btn btn-outline btn-sm" onclick="toggleAddMembers()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                    Add members
+                  </button>
+                </div>
+
+                <!-- Current Members -->
+                <div id="group-member-list">
+                  <!-- Rendered by JS -->
+                </div>
+
+                <!-- Add Members Section -->
+                <div id="add-members-section" class="add-member-section" style="display:none">
+                  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px">
+                    <div class="detail-card-title" style="margin:0">Add Members</div>
+                    <button class="btn btn-outline btn-sm" onclick="toggleAddMembers()" style="padding:4px 8px">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                  </div>
+                  <div class="search-box" style="margin-bottom:12px">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" placeholder="Search contacts to add...">
+                  </div>
+                  <div id="available-contacts-list">
+                    <!-- Rendered by JS -->
+                  </div>
+                  <div style="margin-top:12px; display:flex; gap:8px">
+                    <button class="btn btn-primary btn-sm" onclick="addSelectedMembers()">Add Selected</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Create Group Form -->
+            <div id="create-group-form" style="display:none" class="scroll-y">
+              <div class="form-panel">
+                <div class="form-title">Create New Group</div>
+                <div class="form-subtitle">Create a group to organize your contacts.</div>
+
+                <div id="create-group-success" class="success-banner" style="display:none">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  <span>Group created successfully!</span>
+                </div>
+
+                <div class="form-section">
+                  <div class="form-section-title">Group Details</div>
+                  <div class="form-group" style="margin-bottom:16px">
+                    <label class="form-label">Group Name *</label>
+                    <input type="text" class="form-input" placeholder="e.g. Engineering Team" id="new-group-name">
+                  </div>
+                  <div class="form-group" style="margin-bottom:16px">
+                    <label class="form-label">Description</label>
+                    <input type="text" class="form-input" placeholder="e.g. Core engineering team members" id="new-group-desc">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Color</label>
+                    <div style="display:flex; gap:8px; margin-top:4px">
+                      <div onclick="selectGroupColor('blue')" class="group-color-opt selected" data-color="blue" style="width:32px;height:32px;border-radius:8px;background:#dbeafe;border:2px solid #1e40af;cursor:pointer"></div>
+                      <div onclick="selectGroupColor('green')" class="group-color-opt" data-color="green" style="width:32px;height:32px;border-radius:8px;background:#d1fae5;border:2px solid transparent;cursor:pointer"></div>
+                      <div onclick="selectGroupColor('purple')" class="group-color-opt" data-color="purple" style="width:32px;height:32px;border-radius:8px;background:#ede9fe;border:2px solid transparent;cursor:pointer"></div>
+                      <div onclick="selectGroupColor('orange')" class="group-color-opt" data-color="orange" style="width:32px;height:32px;border-radius:8px;background:#fef3c7;border:2px solid transparent;cursor:pointer"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-section">
+                  <div class="form-section-title">Add Members (optional)</div>
+                  <div class="search-box" style="margin-bottom:12px">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" placeholder="Search contacts...">
+                  </div>
+                  <div id="create-group-contacts-list">
+                    <!-- Rendered by JS -->
+                  </div>
+                </div>
+
+                <div class="form-actions">
+                  <button class="btn btn-primary" onclick="saveNewGroup()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Create Group
+                  </button>
+                  <button class="btn btn-outline" onclick="cancelCreateGroup()">Cancel</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ========== DATA ==========
+    const avatarColors = ['bg-blue', 'bg-green', 'bg-purple', 'bg-orange', 'bg-pink', 'bg-teal'];
+    const colorMap = { blue: '#dbeafe', green: '#d1fae5', purple: '#ede9fe', orange: '#fef3c7' };
+    const colorBorders = { blue: '#1e40af', green: '#059669', purple: '#7c3aed', orange: '#d97706' };
+
+    let contacts = [
+      { id: 1, firstName: 'John', lastName: 'Doe', email: 'john.doe@acme.com', phone: '+1 (555) 123-4567', company: 'Acme Corp', title: 'Software Engineer', location: 'San Francisco, CA', notes: '', color: 'bg-blue' },
+      { id: 2, firstName: 'Sarah', lastName: 'Miller', email: 'sarah.m@techstart.io', phone: '+1 (555) 234-5678', company: 'TechStart', title: 'Product Manager', location: 'New York, NY', notes: '', color: 'bg-green' },
+      { id: 3, firstName: 'Alex', lastName: 'Chen', email: 'alex.chen@design.co', phone: '+1 (555) 345-6789', company: 'DesignCo', title: 'UX Designer', location: 'Austin, TX', notes: '', color: 'bg-purple' },
+      { id: 4, firstName: 'Maria', lastName: 'Garcia', email: 'maria.g@startup.com', phone: '+1 (555) 456-7890', company: 'StartupHub', title: 'Data Scientist', location: 'Seattle, WA', notes: '', color: 'bg-orange' },
+      { id: 5, firstName: 'James', lastName: 'Wilson', email: 'j.wilson@corp.net', phone: '+1 (555) 567-8901', company: 'BigCorp', title: 'DevOps Engineer', location: 'Denver, CO', notes: '', color: 'bg-pink' },
+      { id: 6, firstName: 'Emily', lastName: 'Taylor', email: 'emily.t@agency.com', phone: '+1 (555) 678-9012', company: 'Creative Agency', title: 'Marketing Lead', location: 'Chicago, IL', notes: '', color: 'bg-teal' },
+    ];
+
+    let groups = [
+      { id: 1, name: 'Engineering', description: 'Core engineering team', color: 'blue', members: [1, 3, 5] },
+      { id: 2, name: 'Project Alpha', description: 'Cross-functional project team', color: 'green', members: [1, 2, 4] },
+      { id: 3, name: 'Design Review', description: 'Design review committee', color: 'purple', members: [2, 3, 6] },
+    ];
+
+    let selectedContactId = null;
+    let selectedGroupId = null;
+    let nextContactId = 7;
+    let nextGroupId = 4;
+    let newGroupColor = 'blue';
+
+    // ========== CONTACTS TAB ==========
+    function renderContactList() {
+      const list = document.getElementById('contact-list');
+      const search = document.getElementById('contact-search').value.toLowerCase();
+      const filtered = contacts.filter(c =>
+        `${c.firstName} ${c.lastName} ${c.email}`.toLowerCase().includes(search)
+      );
+      list.innerHTML = filtered.map(c => `
+        <div class="contact-item ${selectedContactId === c.id ? 'selected' : ''}" onclick="selectContact(${c.id})">
+          <div class="contact-avatar ${c.color}">${c.firstName[0]}${c.lastName[0]}</div>
+          <div class="contact-info">
+            <div class="contact-name">${c.firstName} ${c.lastName}</div>
+            <div class="contact-email">${c.email}</div>
+          </div>
+        </div>
+      `).join('');
+      document.getElementById('contact-count').textContent = contacts.length;
+    }
+
+    function filterContacts() { renderContactList(); }
+
+    function selectContact(id) {
+      selectedContactId = id;
+      renderContactList();
+      showContactDetail(id);
+    }
+
+    function showContactDetail(id) {
+      const c = contacts.find(x => x.id === id);
+      if (!c) return;
+      hideAllContactPanels();
+      document.getElementById('contact-detail-view').style.display = 'block';
+      document.getElementById('detail-avatar').className = 'contact-detail-avatar ' + c.color;
+      document.getElementById('detail-avatar').textContent = c.firstName[0] + c.lastName[0];
+      document.getElementById('detail-name').textContent = c.firstName + ' ' + c.lastName;
+      document.getElementById('detail-role').textContent = c.title || 'No title';
+      document.getElementById('detail-email').textContent = c.email;
+      document.getElementById('detail-phone').textContent = c.phone || '—';
+      document.getElementById('detail-company').textContent = c.company || '—';
+      document.getElementById('detail-location').textContent = c.location || '—';
+      // Groups
+      const memberGroups = groups.filter(g => g.members.includes(id));
+      const tagsMap = { blue: 'tag-blue', green: 'tag-green', purple: 'tag-purple', orange: 'tag-orange' };
+      document.getElementById('detail-groups').innerHTML = memberGroups.length
+        ? memberGroups.map(g => `<span class="tag ${tagsMap[g.color] || 'tag-blue'}">${g.name}</span>`).join(' ')
+        : '<span style="color:#9ca3af;font-size:13px">Not a member of any group</span>';
+      document.getElementById('delete-contact-confirm').style.display = 'none';
+      document.getElementById('contact-success-banner').style.display = 'none';
+    }
+
+    function hideAllContactPanels() {
+      document.getElementById('detail-empty').style.display = 'none';
+      document.getElementById('contact-detail-view').style.display = 'none';
+      document.getElementById('add-contact-form').style.display = 'none';
+      document.getElementById('edit-contact-form').style.display = 'none';
+    }
+
+    // Add Contact
+    function showAddContact() {
+      selectedContactId = null;
+      renderContactList();
+      hideAllContactPanels();
+      document.getElementById('add-contact-form').style.display = 'block';
+      document.getElementById('add-contact-success').style.display = 'none';
+      ['add-first-name','add-last-name','add-email','add-phone','add-company','add-title','add-location','add-notes'].forEach(id => document.getElementById(id).value = '');
+    }
+
+    function saveNewContact() {
+      const fn = document.getElementById('add-first-name').value.trim();
+      const ln = document.getElementById('add-last-name').value.trim();
+      const em = document.getElementById('add-email').value.trim();
+      if (!fn || !ln || !em) { alert('Please fill in required fields (First Name, Last Name, Email)'); return; }
+      contacts.push({
+        id: nextContactId++, firstName: fn, lastName: ln, email: em,
+        phone: document.getElementById('add-phone').value.trim(),
+        company: document.getElementById('add-company').value.trim(),
+        title: document.getElementById('add-title').value.trim(),
+        location: document.getElementById('add-location').value.trim(),
+        notes: document.getElementById('add-notes').value.trim(),
+        color: avatarColors[contacts.length % avatarColors.length]
+      });
+      renderContactList();
+      document.getElementById('add-contact-success').style.display = 'flex';
+      setTimeout(() => {
+        selectContact(nextContactId - 1);
+      }, 1200);
+    }
+
+    function cancelAddContact() {
+      if (selectedContactId) { showContactDetail(selectedContactId); }
+      else { hideAllContactPanels(); document.getElementById('detail-empty').style.display = 'flex'; }
+    }
+
+    // Edit Contact
+    function showEditContact() {
+      const c = contacts.find(x => x.id === selectedContactId);
+      if (!c) return;
+      hideAllContactPanels();
+      document.getElementById('edit-contact-form').style.display = 'block';
+      document.getElementById('edit-first-name').value = c.firstName;
+      document.getElementById('edit-last-name').value = c.lastName;
+      document.getElementById('edit-email').value = c.email;
+      document.getElementById('edit-phone').value = c.phone;
+      document.getElementById('edit-company').value = c.company;
+      document.getElementById('edit-title').value = c.title;
+      document.getElementById('edit-location').value = c.location;
+      document.getElementById('edit-notes').value = c.notes;
+    }
+
+    function saveEditContact() {
+      const c = contacts.find(x => x.id === selectedContactId);
+      if (!c) return;
+      c.firstName = document.getElementById('edit-first-name').value.trim();
+      c.lastName = document.getElementById('edit-last-name').value.trim();
+      c.email = document.getElementById('edit-email').value.trim();
+      c.phone = document.getElementById('edit-phone').value.trim();
+      c.company = document.getElementById('edit-company').value.trim();
+      c.title = document.getElementById('edit-title').value.trim();
+      c.location = document.getElementById('edit-location').value.trim();
+      c.notes = document.getElementById('edit-notes').value.trim();
+      renderContactList();
+      showContactDetail(selectedContactId);
+      document.getElementById('contact-success-banner').style.display = 'flex';
+      document.getElementById('contact-success-text').textContent = 'Contact updated successfully!';
+      setTimeout(() => { document.getElementById('contact-success-banner').style.display = 'none'; }, 3000);
+    }
+
+    function cancelEditContact() { showContactDetail(selectedContactId); }
+
+    // Delete Contact
+    function showDeleteContact() {
+      const c = contacts.find(x => x.id === selectedContactId);
+      document.getElementById('delete-contact-name').textContent = c.firstName + ' ' + c.lastName;
+      document.getElementById('delete-contact-confirm').style.display = 'block';
+    }
+
+    function hideDeleteContact() {
+      document.getElementById('delete-contact-confirm').style.display = 'none';
+    }
+
+    function confirmDeleteContact() {
+      groups.forEach(g => { g.members = g.members.filter(m => m !== selectedContactId); });
+      contacts = contacts.filter(c => c.id !== selectedContactId);
+      selectedContactId = null;
+      renderContactList();
+      renderGroupList();
+      hideAllContactPanels();
+      document.getElementById('detail-empty').style.display = 'flex';
+      document.getElementById('detail-empty').innerHTML = `
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <p style="color:#059669;font-weight:500">Contact deleted successfully</p>
+      `;
+      setTimeout(() => {
+        document.getElementById('detail-empty').innerHTML = `
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <p>Select a contact to view details</p>
+        `;
+      }, 2000);
+    }
+
+    // ========== GROUPS TAB ==========
+    function renderGroupList() {
+      const list = document.getElementById('group-list');
+      list.innerHTML = groups.map(g => `
+        <div class="group-item ${selectedGroupId === g.id ? 'selected' : ''}" onclick="selectGroup(${g.id})">
+          <div class="group-icon ${g.color}">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div class="group-info">
+            <div class="group-name">${g.name}</div>
+            <div class="group-count">${g.members.length} member${g.members.length !== 1 ? 's' : ''}</div>
+          </div>
+        </div>
+      `).join('');
+      document.getElementById('group-count').textContent = groups.length;
+    }
+
+    function selectGroup(id) {
+      selectedGroupId = id;
+      renderGroupList();
+      showGroupDetail(id);
+    }
+
+    function showGroupDetail(id) {
+      const g = groups.find(x => x.id === id);
+      if (!g) return;
+      hideAllGroupPanels();
+      document.getElementById('group-detail-view').style.display = 'block';
+      document.getElementById('group-detail-name').textContent = g.name;
+      document.getElementById('group-detail-desc').textContent = g.description || 'No description';
+      document.getElementById('delete-group-confirm').style.display = 'none';
+      document.getElementById('edit-group-section').style.display = 'none';
+      document.getElementById('add-members-section').style.display = 'none';
+      document.getElementById('group-success-banner').style.display = 'none';
+      renderGroupMembers(g);
+    }
+
+    function renderGroupMembers(g) {
+      const memberList = document.getElementById('group-member-list');
+      document.getElementById('members-title').textContent = `Members (${g.members.length})`;
+      if (g.members.length === 0) {
+        memberList.innerHTML = '<div class="empty-state" style="padding:30px"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><p style="font-size:13px;color:#9ca3af">No members yet. Click "Add members" to get started.</p></div>';
+        return;
+      }
+      memberList.innerHTML = g.members.map(mid => {
+        const c = contacts.find(x => x.id === mid);
+        if (!c) return '';
+        return `
+          <div class="member-item">
+            <div class="contact-avatar ${c.color}" style="width:36px;height:36px;font-size:12px">${c.firstName[0]}${c.lastName[0]}</div>
+            <div class="contact-info">
+              <div class="contact-name" style="font-size:13px">${c.firstName} ${c.lastName}</div>
+              <div class="contact-email">${c.email}</div>
+            </div>
+            <button class="remove-btn" onclick="removeMember(${g.id}, ${c.id})">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Remove
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function hideAllGroupPanels() {
+      document.getElementById('group-empty').style.display = 'none';
+      document.getElementById('group-detail-view').style.display = 'none';
+      document.getElementById('create-group-form').style.display = 'none';
+    }
+
+    // Remove member
+    function removeMember(gid, cid) {
+      const g = groups.find(x => x.id === gid);
+      g.members = g.members.filter(m => m !== cid);
+      renderGroupMembers(g);
+      renderGroupList();
+      document.getElementById('group-success-banner').style.display = 'flex';
+      document.getElementById('group-success-text').textContent = 'Member removed from group.';
+      setTimeout(() => { document.getElementById('group-success-banner').style.display = 'none'; }, 3000);
+    }
+
+    // Add members toggle
+    function toggleAddMembers() {
+      const section = document.getElementById('add-members-section');
+      if (section.style.display === 'none') {
+        section.style.display = 'block';
+        renderAvailableContacts();
+      } else {
+        section.style.display = 'none';
+      }
+    }
+
+    function renderAvailableContacts() {
+      const g = groups.find(x => x.id === selectedGroupId);
+      const available = contacts.filter(c => !g.members.includes(c.id));
+      const list = document.getElementById('available-contacts-list');
+      if (available.length === 0) {
+        list.innerHTML = '<p style="font-size:13px;color:#9ca3af;padding:8px 0">All contacts are already members of this group.</p>';
+        return;
+      }
+      list.innerHTML = available.map(c => `
+        <div class="selectable-contact" onclick="toggleSelectMember(this, ${c.id})">
+          <div class="checkbox" data-id="${c.id}">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="display:none"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="contact-avatar ${c.color}" style="width:32px;height:32px;font-size:11px">${c.firstName[0]}${c.lastName[0]}</div>
+          <div class="contact-info">
+            <div class="contact-name" style="font-size:13px">${c.firstName} ${c.lastName}</div>
+            <div class="contact-email">${c.email}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    let selectedNewMembers = [];
+    function toggleSelectMember(el, id) {
+      const cb = el.querySelector('.checkbox');
+      if (cb.classList.contains('checked')) {
+        cb.classList.remove('checked');
+        cb.querySelector('svg').style.display = 'none';
+        selectedNewMembers = selectedNewMembers.filter(m => m !== id);
+      } else {
+        cb.classList.add('checked');
+        cb.querySelector('svg').style.display = 'block';
+        selectedNewMembers.push(id);
+      }
+    }
+
+    function addSelectedMembers() {
+      if (selectedNewMembers.length === 0) return;
+      const g = groups.find(x => x.id === selectedGroupId);
+      g.members = [...g.members, ...selectedNewMembers];
+      selectedNewMembers = [];
+      renderGroupMembers(g);
+      renderGroupList();
+      document.getElementById('add-members-section').style.display = 'none';
+      document.getElementById('group-success-banner').style.display = 'flex';
+      document.getElementById('group-success-text').textContent = 'Members added to group!';
+      setTimeout(() => { document.getElementById('group-success-banner').style.display = 'none'; }, 3000);
+    }
+
+    // Create Group
+    function showCreateGroup() {
+      selectedGroupId = null;
+      renderGroupList();
+      hideAllGroupPanels();
+      document.getElementById('create-group-form').style.display = 'block';
+      document.getElementById('create-group-success').style.display = 'none';
+      document.getElementById('new-group-name').value = '';
+      document.getElementById('new-group-desc').value = '';
+      newGroupColor = 'blue';
+      renderCreateGroupContacts();
+      // Reset color selection
+      document.querySelectorAll('.group-color-opt').forEach(el => {
+        el.style.border = el.dataset.color === 'blue' ? '2px solid #1e40af' : '2px solid transparent';
+      });
+    }
+
+    function selectGroupColor(color) {
+      newGroupColor = color;
+      document.querySelectorAll('.group-color-opt').forEach(el => {
+        el.style.border = el.dataset.color === color ? `2px solid ${colorBorders[color]}` : '2px solid transparent';
+      });
+    }
+
+    let selectedCreateMembers = [];
+    function renderCreateGroupContacts() {
+      selectedCreateMembers = [];
+      const list = document.getElementById('create-group-contacts-list');
+      list.innerHTML = contacts.map(c => `
+        <div class="selectable-contact" onclick="toggleCreateMember(this, ${c.id})">
+          <div class="checkbox" data-id="${c.id}">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="display:none"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="contact-avatar ${c.color}" style="width:32px;height:32px;font-size:11px">${c.firstName[0]}${c.lastName[0]}</div>
+          <div class="contact-info">
+            <div class="contact-name" style="font-size:13px">${c.firstName} ${c.lastName}</div>
+            <div class="contact-email">${c.email}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleCreateMember(el, id) {
+      const cb = el.querySelector('.checkbox');
+      if (cb.classList.contains('checked')) {
+        cb.classList.remove('checked');
+        cb.querySelector('svg').style.display = 'none';
+        selectedCreateMembers = selectedCreateMembers.filter(m => m !== id);
+      } else {
+        cb.classList.add('checked');
+        cb.querySelector('svg').style.display = 'block';
+        selectedCreateMembers.push(id);
+      }
+    }
+
+    function saveNewGroup() {
+      const name = document.getElementById('new-group-name').value.trim();
+      if (!name) { alert('Please enter a group name'); return; }
+      groups.push({
+        id: nextGroupId++, name,
+        description: document.getElementById('new-group-desc').value.trim(),
+        color: newGroupColor,
+        members: [...selectedCreateMembers]
+      });
+      renderGroupList();
+      document.getElementById('create-group-success').style.display = 'flex';
+      setTimeout(() => { selectGroup(nextGroupId - 1); }, 1200);
+    }
+
+    function cancelCreateGroup() {
+      if (selectedGroupId) { showGroupDetail(selectedGroupId); }
+      else { hideAllGroupPanels(); document.getElementById('group-empty').style.display = 'flex'; }
+    }
+
+    // Edit Group
+    function showEditGroup() {
+      const g = groups.find(x => x.id === selectedGroupId);
+      document.getElementById('edit-group-section').style.display = 'block';
+      document.getElementById('edit-group-name').value = g.name;
+      document.getElementById('edit-group-desc').value = g.description;
+    }
+
+    function saveEditGroup() {
+      const g = groups.find(x => x.id === selectedGroupId);
+      g.name = document.getElementById('edit-group-name').value.trim();
+      g.description = document.getElementById('edit-group-desc').value.trim();
+      renderGroupList();
+      showGroupDetail(g.id);
+      document.getElementById('group-success-banner').style.display = 'flex';
+      document.getElementById('group-success-text').textContent = 'Group updated successfully!';
+      setTimeout(() => { document.getElementById('group-success-banner').style.display = 'none'; }, 3000);
+    }
+
+    function cancelEditGroup() {
+      document.getElementById('edit-group-section').style.display = 'none';
+    }
+
+    // Delete Group
+    function showDeleteGroup() {
+      const g = groups.find(x => x.id === selectedGroupId);
+      document.getElementById('delete-group-name').textContent = g.name;
+      document.getElementById('delete-group-confirm').style.display = 'block';
+    }
+
+    function hideDeleteGroup() {
+      document.getElementById('delete-group-confirm').style.display = 'none';
+    }
+
+    function confirmDeleteGroup() {
+      groups = groups.filter(g => g.id !== selectedGroupId);
+      selectedGroupId = null;
+      renderGroupList();
+      hideAllGroupPanels();
+      document.getElementById('group-empty').style.display = 'flex';
+      document.getElementById('group-empty').innerHTML = `
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <p style="color:#059669;font-weight:500">Group deleted successfully</p>
+      `;
+      setTimeout(() => {
+        document.getElementById('group-empty').innerHTML = `
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <p>Select a group to manage members</p>
+        `;
+      }, 2000);
+    }
+
+    // ========== TAB SWITCHING ==========
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      if (tab === 'contacts') {
+        document.querySelectorAll('.tab')[0].classList.add('active');
+        document.getElementById('view-contacts').classList.add('active');
+        document.getElementById('breadcrumb-text').textContent = 'Contacts';
+      } else {
+        document.querySelectorAll('.tab')[1].classList.add('active');
+        document.getElementById('view-groups').classList.add('active');
+        document.getElementById('breadcrumb-text').textContent = 'Groups';
+      }
+    }
+
+    // ========== INIT ==========
+    renderContactList();
+    renderGroupList();
+  </script>
+</body>
+</html>

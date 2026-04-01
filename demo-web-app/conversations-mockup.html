@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CogniAIX - Conversations</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f9fb; color: #1a1d27; height: 100vh; overflow: hidden; }
+    .app { display: flex; height: 100vh; }
+
+    /* ===== LEFT SIDEBAR ===== */
+    .sidebar { width: 240px; background: #fff; border-right: 1px solid #e5e7eb; display: flex; flex-direction: column; flex-shrink: 0; }
+    .sidebar-logo { padding: 16px 20px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #e5e7eb; }
+    .sidebar-logo svg { width: 32px; height: 32px; }
+    .sidebar-logo span { font-size: 18px; font-weight: 700; color: #1e40af; }
+    .sidebar-logo .notif { margin-left: auto; width: 32px; height: 32px; border-radius: 8px; border: none; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #6b7280; }
+    .sidebar-logo .notif:hover { background: #f0f1f5; }
+    .sidebar-nav { padding: 12px 8px; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; cursor: pointer; color: #4b5563; font-size: 14px; font-weight: 500; transition: all 0.15s; }
+    .nav-item:hover { background: #f0f1f5; color: #1a1d27; }
+    .nav-item.active { background: #eff6ff; color: #1e40af; }
+    .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .sidebar-section-title { padding: 16px 12px 6px; font-size: 11px; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px; }
+    .chat-list { flex: 1; overflow-y: auto; padding: 0 8px; }
+    .chat-item { padding: 8px 12px; font-size: 13px; color: #6b7280; border-radius: 6px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .chat-item:hover { background: #f0f1f5; }
+    .sidebar-footer { border-top: 1px solid #e5e7eb; padding: 10px 12px; }
+    .user-row { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 8px; cursor: pointer; }
+    .user-row:hover { background: #f0f1f5; }
+    .avatar-sm { width: 28px; height: 28px; border-radius: 50%; background: #1e40af; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+    .user-row span { font-size: 13px; font-weight: 500; color: #1a1d27; }
+    .social-row { display: flex; gap: 4px; padding: 8px; justify-content: center; border-top: 1px solid #f0f1f5; margin-top: 4px; }
+    .social-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #9ca3af; cursor: pointer; }
+    .social-icon:hover { background: #f0f1f5; color: #4b5563; }
+
+    /* ===== MAIN ===== */
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* Top Bar */
+    .top-bar { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 12px 24px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; height: 60px; }
+    .back-btn { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; background: #1e40af; color: #fff; border: none; cursor: pointer; font-size: 13px; font-weight: 500; }
+    .back-btn:hover { background: #1e3a8a; }
+    .back-btn svg { width: 16px; height: 16px; }
+    .top-bar-title { font-size: 18px; font-weight: 600; color: #1a1d27; flex: 1; }
+    .top-bar-actions { display: flex; gap: 8px; }
+    .btn { padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; }
+    .btn svg { width: 16px; height: 16px; }
+    .btn-record { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; }
+    .btn-record:hover { background: linear-gradient(135deg, #dc2626, #b91c1c); }
+    .btn-record.recording { animation: pulse-record 1.5s ease-in-out infinite; }
+    @keyframes pulse-record { 0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); } 50% { box-shadow: 0 0 0 8px rgba(239,68,68,0); } }
+    .btn-upload { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; }
+    .btn-upload:hover { background: linear-gradient(135deg, #d97706, #b45309); }
+    .btn-outline { background: #fff; color: #4b5563; border: 1px solid #e5e7eb; }
+    .btn-outline:hover { background: #f8f9fb; }
+    .btn-primary { background: #1e40af; color: #fff; }
+    .btn-primary:hover { background: #1e3a8a; }
+    .btn-danger { background: #fff; color: #dc2626; border: 1px solid #fecaca; }
+    .btn-danger:hover { background: #fef2f2; }
+    .btn-danger-solid { background: #dc2626; color: #fff; border: none; }
+    .btn-danger-solid:hover { background: #b91c1c; }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+    .btn-xs { padding: 4px 8px; font-size: 11px; }
+
+    /* ===== CONTENT AREA ===== */
+    .content { flex: 1; display: flex; overflow: hidden; }
+
+    /* Conversation List Panel */
+    .conv-list-panel { width: 420px; background: #fff; border-right: 1px solid #e5e7eb; display: flex; flex-direction: column; flex-shrink: 0; }
+
+    /* List toolbar */
+    .list-toolbar { padding: 12px 16px; border-bottom: 1px solid #e5e7eb; display: flex; flex-direction: column; gap: 10px; }
+    .list-toolbar-row { display: flex; align-items: center; gap: 8px; }
+    .search-box { display: flex; align-items: center; background: #f8f9fb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 0 12px; height: 36px; flex: 1; }
+    .search-box svg { width: 16px; height: 16px; color: #9ca3af; flex-shrink: 0; }
+    .search-box input { border: none; background: none; outline: none; font-size: 13px; padding-left: 8px; flex: 1; color: #1a1d27; }
+    .search-box input::placeholder { color: #9ca3af; }
+
+    /* Filter tabs */
+    .filter-tabs { display: flex; background: #f0f1f5; border-radius: 8px; padding: 3px; }
+    .filter-tab { padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500; color: #6b7280; cursor: pointer; border: none; background: none; transition: all 0.15s; white-space: nowrap; }
+    .filter-tab.active { background: #fff; color: #1a1d27; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .filter-tab:hover:not(.active) { color: #1a1d27; }
+    .filter-tab .count { font-size: 10px; background: #e5e7eb; color: #6b7280; padding: 1px 6px; border-radius: 8px; margin-left: 4px; }
+    .filter-tab.active .count { background: #dbeafe; color: #1e40af; }
+
+    /* Bulk actions bar */
+    .bulk-bar { display: none; padding: 8px 16px; background: #eff6ff; border-bottom: 1px solid #dbeafe; align-items: center; gap: 8px; }
+    .bulk-bar.visible { display: flex; }
+    .bulk-bar .selected-count { font-size: 12px; font-weight: 600; color: #1e40af; }
+    .bulk-bar .bulk-actions { display: flex; gap: 6px; margin-left: auto; }
+
+    /* Conversation items */
+    .conv-list { flex: 1; overflow-y: auto; }
+    .conv-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; cursor: pointer; border-bottom: 1px solid #f0f1f5; transition: all 0.1s; position: relative; }
+    .conv-item:hover { background: #f8f9fb; }
+    .conv-item.selected { background: #eff6ff; }
+    .conv-item.active { background: #eff6ff; border-left: 3px solid #1e40af; }
+    .conv-checkbox { width: 18px; height: 18px; border: 2px solid #d1d5db; border-radius: 4px; flex-shrink: 0; margin-top: 2px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.1s; }
+    .conv-checkbox.checked { background: #1e40af; border-color: #1e40af; }
+    .conv-checkbox.checked::after { content: ''; display: block; width: 6px; height: 10px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); margin-top: -2px; }
+    .conv-icon { width: 40px; height: 40px; border-radius: 10px; background: #eff6ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #1e40af; }
+    .conv-icon.grouped { background: #d1fae5; color: #059669; }
+    .conv-icon.shared { background: #ede9fe; color: #7c3aed; }
+    .conv-body { flex: 1; min-width: 0; }
+    .conv-title { font-size: 13px; font-weight: 600; color: #1a1d27; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; }
+    .conv-meta { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #9ca3af; }
+    .conv-meta svg { width: 12px; height: 12px; }
+    .conv-meta-item { display: flex; align-items: center; gap: 3px; }
+    .conv-preview { font-size: 12px; color: #6b7280; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .conv-tags { display: flex; gap: 4px; margin-top: 6px; }
+    .conv-tag { font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 10px; }
+    .conv-tag-points { background: #fef3c7; color: #92400e; }
+    .conv-tag-actions { background: #dbeafe; color: #1e40af; }
+    .conv-tag-transcript { background: #d1fae5; color: #065f46; }
+    .conv-actions { display: flex; gap: 2px; opacity: 0; transition: opacity 0.15s; flex-shrink: 0; }
+    .conv-item:hover .conv-actions { opacity: 1; }
+    .conv-action-btn { width: 28px; height: 28px; border-radius: 6px; border: none; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #9ca3af; transition: all 0.1s; }
+    .conv-action-btn:hover { background: #f0f1f5; color: #4b5563; }
+    .conv-action-btn.danger:hover { background: #fef2f2; color: #dc2626; }
+
+    /* ===== DETAIL PANEL ===== */
+    .detail-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #f8f9fb; }
+
+    /* Detail header */
+    .detail-header { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 16px 24px; flex-shrink: 0; }
+    .detail-header-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .detail-title { font-size: 16px; font-weight: 600; color: #1a1d27; flex: 1; }
+    .detail-tools { display: flex; gap: 4px; }
+    .tool-btn { width: 36px; height: 36px; border-radius: 8px; border: 1px solid #e5e7eb; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #6b7280; transition: all 0.15s; position: relative; }
+    .tool-btn:hover { background: #f0f1f5; color: #1a1d27; }
+    .tool-btn .tooltip { display: none; position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%); background: #1a1d27; color: #fff; font-size: 11px; padding: 4px 8px; border-radius: 4px; white-space: nowrap; z-index: 10; }
+    .tool-btn:hover .tooltip { display: block; }
+
+    /* Content tabs */
+    .detail-tabs { display: flex; gap: 0; }
+    .detail-tab { padding: 8px 16px; font-size: 13px; font-weight: 500; color: #6b7280; cursor: pointer; border: 1px solid #e5e7eb; background: #f8f9fb; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+    .detail-tab:first-child { border-radius: 8px 0 0 8px; }
+    .detail-tab:last-child { border-radius: 0 8px 8px 0; }
+    .detail-tab:not(:first-child) { border-left: none; }
+    .detail-tab.active { background: #1e40af; color: #fff; border-color: #1e40af; }
+    .detail-tab svg { width: 14px; height: 14px; }
+
+    /* Detail content */
+    .detail-content { flex: 1; overflow-y: auto; padding: 24px; }
+
+    /* Key Points */
+    .key-point { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; margin-bottom: 10px; display: flex; gap: 12px; transition: all 0.1s; }
+    .key-point:hover { border-color: #dbeafe; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+    .kp-number { width: 28px; height: 28px; border-radius: 50%; background: #fef3c7; color: #92400e; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+    .kp-text { font-size: 14px; line-height: 1.6; color: #374151; flex: 1; }
+
+    /* Action Items */
+    .action-item { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px 16px; margin-bottom: 8px; display: flex; align-items: flex-start; gap: 12px; }
+    .action-item:hover { border-color: #dbeafe; }
+    .ai-checkbox { width: 20px; height: 20px; border: 2px solid #d1d5db; border-radius: 50%; flex-shrink: 0; margin-top: 1px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+    .ai-checkbox.done { background: #059669; border-color: #059669; }
+    .ai-checkbox.done::after { content: ''; display: block; width: 6px; height: 10px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); margin-top: -2px; }
+    .ai-body { flex: 1; }
+    .ai-text { font-size: 14px; color: #374151; line-height: 1.5; }
+    .ai-text.done { text-decoration: line-through; color: #9ca3af; }
+    .ai-assignee { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: #6b7280; background: #f0f1f5; padding: 2px 8px; border-radius: 10px; margin-top: 6px; }
+    .ai-priority { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; }
+    .priority-high { background: #fef2f2; color: #dc2626; }
+    .priority-med { background: #fef3c7; color: #92400e; }
+    .priority-low { background: #d1fae5; color: #065f46; }
+
+    /* Transcript */
+    .transcript-entry { display: flex; gap: 12px; margin-bottom: 16px; }
+    .transcript-time { font-size: 11px; color: #9ca3af; font-weight: 500; min-width: 56px; padding-top: 3px; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+    .transcript-bubble { flex: 1; }
+    .transcript-speaker { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+    .speaker-1 { color: #1e40af; }
+    .speaker-2 { color: #059669; }
+    .speaker-3 { color: #7c3aed; }
+    .speaker-4 { color: #d97706; }
+    .transcript-text { font-size: 14px; color: #374151; line-height: 1.6; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px 16px; }
+    .transcript-text mark { background: #fef08a; padding: 1px 2px; border-radius: 2px; }
+
+    /* Empty state */
+    .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; text-align: center; height: 100%; }
+    .empty-state svg { width: 56px; height: 56px; color: #d1d5db; margin-bottom: 16px; }
+    .empty-state h3 { font-size: 16px; font-weight: 600; color: #4b5563; margin-bottom: 4px; }
+    .empty-state p { font-size: 13px; color: #9ca3af; max-width: 300px; line-height: 1.5; }
+
+    /* Ask bar */
+    .ask-bar { background: #fff; border-top: 1px solid #e5e7eb; padding: 12px 24px; display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+    .ask-input { flex: 1; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 16px; font-size: 14px; color: #1a1d27; background: #f8f9fb; outline: none; }
+    .ask-input:focus { border-color: #1e40af; background: #fff; box-shadow: 0 0 0 3px rgba(30,64,175,0.1); }
+    .ask-input::placeholder { color: #9ca3af; }
+    .ask-mic { width: 40px; height: 40px; border-radius: 50%; background: #f0f1f5; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #6b7280; transition: all 0.15s; }
+    .ask-mic:hover { background: #e5e7eb; color: #1a1d27; }
+    .ask-send { width: 40px; height: 40px; border-radius: 50%; background: #1e40af; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #fff; transition: all 0.15s; }
+    .ask-send:hover { background: #1e3a8a; }
+
+    /* Delete confirmation inline */
+    .inline-confirm { background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 16px; margin-bottom: 10px; display: none; }
+    .inline-confirm.visible { display: block; }
+    .inline-confirm-title { font-size: 14px; font-weight: 600; color: #dc2626; display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+    .inline-confirm-title svg { width: 16px; height: 16px; }
+    .inline-confirm-text { font-size: 13px; color: #6b7280; margin-bottom: 12px; }
+    .inline-confirm-actions { display: flex; gap: 8px; }
+
+    /* Success banner */
+    .success-banner { background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 10px 16px; display: none; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .success-banner.visible { display: flex; }
+    .success-banner svg { width: 16px; height: 16px; color: #059669; flex-shrink: 0; }
+    .success-banner span { font-size: 13px; color: #065f46; font-weight: 500; }
+    .success-banner .close-banner { margin-left: auto; background: none; border: none; cursor: pointer; color: #059669; padding: 2px; }
+
+    /* Inline upload area */
+    .upload-area { display: none; background: #fff; border: 2px dashed #d1d5db; border-radius: 12px; padding: 32px; text-align: center; margin: 16px; transition: all 0.2s; }
+    .upload-area.visible { display: block; }
+    .upload-area.dragover { border-color: #1e40af; background: #eff6ff; }
+    .upload-area svg { width: 40px; height: 40px; color: #d1d5db; margin-bottom: 8px; }
+    .upload-area h4 { font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 4px; }
+    .upload-area p { font-size: 12px; color: #9ca3af; }
+    .upload-area .browse-btn { color: #1e40af; font-weight: 500; cursor: pointer; text-decoration: underline; }
+    .upload-formats { font-size: 11px; color: #9ca3af; margin-top: 8px; }
+
+    /* Recording inline area */
+    .recording-area { display: none; background: #fff; border: 1px solid #fecaca; border-radius: 12px; padding: 24px; margin: 16px; text-align: center; }
+    .recording-area.visible { display: block; }
+    .rec-indicator { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; }
+    .rec-dot { width: 12px; height: 12px; border-radius: 50%; background: #dc2626; animation: blink 1s infinite; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    .rec-time { font-size: 24px; font-weight: 700; color: #1a1d27; font-variant-numeric: tabular-nums; }
+    .rec-waveform { height: 40px; background: #fef2f2; border-radius: 8px; margin: 12px 0; display: flex; align-items: center; justify-content: center; gap: 3px; overflow: hidden; }
+    .rec-bar { width: 3px; border-radius: 2px; background: #dc2626; animation: wave 0.8s ease-in-out infinite; }
+    @keyframes wave { 0%, 100% { height: 8px; } 50% { height: 28px; } }
+    .rec-controls { display: flex; gap: 12px; justify-content: center; margin-top: 12px; }
+
+    /* Group/Merge inline panels */
+    .inline-panel { display: none; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; margin: 12px 16px; }
+    .inline-panel.visible { display: block; }
+    .inline-panel-title { font-size: 14px; font-weight: 600; color: #1a1d27; margin-bottom: 4px; }
+    .inline-panel-desc { font-size: 12px; color: #9ca3af; margin-bottom: 12px; }
+
+    /* Zoom control */
+    .zoom-control { display: flex; align-items: center; gap: 4px; border: 1px solid #e5e7eb; border-radius: 8px; padding: 2px; }
+    .zoom-btn { width: 28px; height: 28px; border-radius: 6px; border: none; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #6b7280; font-size: 14px; }
+    .zoom-btn:hover { background: #f0f1f5; }
+    .zoom-val { font-size: 12px; color: #4b5563; font-weight: 500; min-width: 36px; text-align: center; }
+
+    /* Rename inline */
+    .rename-input { font-size: 16px; font-weight: 600; color: #1a1d27; border: 1px solid #1e40af; border-radius: 6px; padding: 4px 8px; outline: none; background: #eff6ff; width: 300px; display: none; }
+
+    /* Transcript search highlight bar */
+    .search-highlight-bar { display: none; background: #fef3c7; border: 1px solid #fcd34d; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; align-items: center; gap: 8px; font-size: 12px; color: #92400e; }
+    .search-highlight-bar.visible { display: flex; }
+    .search-highlight-bar .match-nav { display: flex; gap: 4px; margin-left: auto; align-items: center; }
+    .search-highlight-bar .match-count { font-weight: 600; }
+
+    /* Section header in content */
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .section-title { font-size: 15px; font-weight: 600; color: #1a1d27; display: flex; align-items: center; gap: 8px; }
+    .section-title svg { width: 18px; height: 18px; }
+    .section-count { font-size: 12px; color: #9ca3af; font-weight: 400; }
+  </style>
+</head>
+<body>
+<div class="app">
+  <!-- ===== SIDEBAR ===== -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="14" fill="#1e40af"/><path d="M10 16a6 6 0 1 1 12 0 6 6 0 0 1-12 0z" fill="#fff" opacity="0.3"/><path d="M14 12a4 4 0 0 1 4 4" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+      <span>CogniAIX</span>
+      <button class="notif"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</div>
+      <div class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Conversations</div>
+    </div>
+    <div class="sidebar-section-title">Chats</div>
+    <div class="chat-list">
+      <div class="chat-item">Show me longest session l</div>
+      <div class="chat-item">much more safer but when</div>
+      <div class="chat-item">what do you think about t</div>
+      <div class="chat-item">based this intervie what</div>
+      <div class="chat-item">Provide meeting insights</div>
+      <div class="chat-item">Provide meeting insights</div>
+      <div class="chat-item">Hi</div>
+      <div class="chat-item">highlights from last meet</div>
+      <div class="chat-item">hi</div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-row"><div class="avatar-sm">SR</div><span>Siva Ramarao</span></div>
+      <div class="social-row">
+        <div class="social-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></div>
+        <div class="social-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></div>
+        <div class="social-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z"/></svg></div>
+        <div class="social-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg></div>
+        <div class="social-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MAIN ===== -->
+  <div class="main">
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <button class="back-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg> Back</button>
+      <div class="top-bar-title">Conversations</div>
+      <div class="top-bar-actions">
+        <button class="btn btn-record" onclick="toggleRecording()" id="record-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          <span id="record-btn-text">Transcribe</span>
+        </button>
+        <button class="btn btn-upload" onclick="toggleUpload()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Upload
+        </button>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <!-- Conversation List -->
+      <div class="conv-list-panel">
+        <div class="list-toolbar">
+          <div class="list-toolbar-row">
+            <div class="search-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" placeholder="Search conversations..." id="conv-search" oninput="filterConvs()">
+            </div>
+          </div>
+          <div class="filter-tabs">
+            <button class="filter-tab active" onclick="setFilter('all', this)">All<span class="count" id="count-all">7</span></button>
+            <button class="filter-tab" onclick="setFilter('grouped', this)">Grouped<span class="count" id="count-grouped">1</span></button>
+            <button class="filter-tab" onclick="setFilter('shared', this)">Shared<span class="count" id="count-shared">1</span></button>
+          </div>
+        </div>
+
+        <!-- Bulk actions bar -->
+        <div class="bulk-bar" id="bulk-bar">
+          <span class="selected-count" id="selected-count">0 selected</span>
+          <div class="bulk-actions">
+            <button class="btn btn-outline btn-xs" onclick="bulkGroup()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> Group</button>
+            <button class="btn btn-outline btn-xs" onclick="bulkMerge()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg> Merge</button>
+            <button class="btn btn-danger btn-xs" onclick="bulkDelete()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Delete</button>
+          </div>
+        </div>
+
+        <!-- Inline recording area -->
+        <div class="recording-area" id="recording-area">
+          <div class="rec-indicator">
+            <div class="rec-dot"></div>
+            <span style="font-size:12px;font-weight:600;color:#dc2626">Recording</span>
+          </div>
+          <div class="rec-time" id="rec-time">00:03:24</div>
+          <div class="rec-waveform" id="rec-waveform"></div>
+          <p style="font-size:12px;color:#9ca3af;margin:8px 0">Live transcription is active</p>
+          <div class="rec-controls">
+            <button class="btn btn-outline btn-sm" onclick="pauseRecording()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> Pause</button>
+            <button class="btn btn-danger-solid btn-sm" onclick="stopRecording()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg> Stop & Save</button>
+          </div>
+        </div>
+
+        <!-- Inline upload area -->
+        <div class="upload-area" id="upload-area">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <h4>Drop audio file here</h4>
+          <p>or <span class="browse-btn">browse files</span> from your computer</p>
+          <div class="upload-formats">Supported: MP3, WAV, M4A, WEBM, OGG (max 500MB)</div>
+          <div style="margin-top:12px"><button class="btn btn-outline btn-sm" onclick="toggleUpload()">Cancel</button></div>
+        </div>
+
+        <!-- Conversation list -->
+        <div class="conv-list" id="conv-list"></div>
+      </div>
+
+      <!-- Detail Panel -->
+      <div class="detail-panel">
+        <!-- Empty state -->
+        <div class="empty-state" id="detail-empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <h3>Select a conversation</h3>
+          <p>Choose a conversation from the list to view key points, action items, and full transcript.</p>
+        </div>
+
+        <!-- Detail view -->
+        <div id="detail-view" style="display:none; flex:1; display:none; flex-direction:column; overflow:hidden;">
+          <div class="detail-header">
+            <div class="detail-header-top">
+              <span class="detail-title" id="detail-title" onclick="startRename()">Conv_2026-03-24_11_13</span>
+              <input type="text" class="rename-input" id="rename-input" onblur="saveRename()" onkeydown="if(event.key==='Enter')saveRename();if(event.key==='Escape')cancelRename()">
+              <div class="detail-tools">
+                <div class="tool-btn" onclick="toggleSearch()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span class="tooltip">Search in content</span></div>
+                <div class="zoom-control">
+                  <button class="zoom-btn" onclick="zoomOut()">−</button>
+                  <span class="zoom-val" id="zoom-val">100%</span>
+                  <button class="zoom-btn" onclick="zoomIn()">+</button>
+                </div>
+                <div class="tool-btn" onclick="exportConv()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><span class="tooltip">Export</span></div>
+                <div class="tool-btn" onclick="copyContent()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="tooltip">Copy to clipboard</span></div>
+              </div>
+            </div>
+            <div class="detail-tabs">
+              <div class="detail-tab active" onclick="switchDetailTab('keypoints', this)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Key Points
+              </div>
+              <div class="detail-tab" onclick="switchDetailTab('actions', this)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                Action Items
+              </div>
+              <div class="detail-tab" onclick="switchDetailTab('transcript', this)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                Transcript
+              </div>
+            </div>
+          </div>
+
+          <!-- Content area -->
+          <div class="detail-content" id="detail-content">
+            <!-- Search bar (hidden by default) -->
+            <div class="search-highlight-bar" id="search-bar">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" placeholder="Find in content..." style="border:none;background:none;outline:none;font-size:12px;flex:1;color:#92400e" oninput="searchInContent(this.value)">
+              <div class="match-nav">
+                <span class="match-count">3 matches</span>
+                <button class="zoom-btn" style="width:24px;height:24px">↑</button>
+                <button class="zoom-btn" style="width:24px;height:24px">↓</button>
+                <button class="zoom-btn" style="width:24px;height:24px" onclick="toggleSearch()">✕</button>
+              </div>
+            </div>
+
+            <!-- Success banner -->
+            <div class="success-banner" id="detail-success">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              <span id="detail-success-text">Copied to clipboard!</span>
+              <button class="close-banner" onclick="this.parentElement.classList.remove('visible')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            </div>
+
+            <!-- Delete inline confirm -->
+            <div class="inline-confirm" id="delete-conv-confirm">
+              <div class="inline-confirm-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Delete this conversation?</div>
+              <div class="inline-confirm-text">This will permanently remove the conversation and all associated data. This action cannot be undone.</div>
+              <div class="inline-confirm-actions">
+                <button class="btn btn-danger-solid btn-sm" onclick="confirmDeleteConv()">Yes, delete</button>
+                <button class="btn btn-outline btn-sm" onclick="hideDeleteConv()">Cancel</button>
+              </div>
+            </div>
+
+            <!-- Tab contents rendered by JS -->
+            <div id="tab-keypoints"></div>
+            <div id="tab-actions" style="display:none"></div>
+            <div id="tab-transcript" style="display:none"></div>
+          </div>
+
+          <!-- Ask bar -->
+          <div class="ask-bar">
+            <input type="text" class="ask-input" placeholder="Ask Cognia about this conversation...">
+            <button class="ask-mic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
+            <button class="ask-send"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ========== DATA ==========
+  let conversations = [
+    { id: 1, title: 'Conv_2026-03-26_09_53', date: '03/26/2026', time: '8:49 PM IST', type: 'all', preview: 'Discussion about Q1 product roadmap and milestones...', hasPoints: true, hasActions: true, hasTranscript: true },
+    { id: 2, title: 'Conv_2026-03-24_16_41', date: '03/25/2026', time: '2:36 AM IST', type: 'all', preview: 'Weekly standup — sprint progress and blockers...', hasPoints: true, hasActions: true, hasTranscript: true },
+    { id: 3, title: 'Conv_2026-03-24_11_13', date: '03/24/2026', time: '8:48 PM IST', type: 'all', preview: 'A meeting with seven to eight people was recorded...', hasPoints: true, hasActions: true, hasTranscript: true },
+    { id: 4, title: 'Conv_2026-03-24_08_48', date: '03/24/2026', time: '6:29 PM IST', type: 'grouped', preview: 'Client onboarding process review and optimization...', hasPoints: true, hasActions: false, hasTranscript: true },
+    { id: 5, title: 'Conv_2026-03-24_08_27', date: '03/24/2026', time: '5:57 PM IST', type: 'all', preview: 'Design review for the new dashboard components...', hasPoints: true, hasActions: true, hasTranscript: true },
+    { id: 6, title: 'Conv_2026-03-23_13_09', date: '03/23/2026', time: '10:42 PM IST', type: 'shared', preview: 'Interview debrief — candidate evaluation and next steps...', hasPoints: true, hasActions: true, hasTranscript: true },
+    { id: 7, title: 'Conv_2026-03-23_08_33', date: '03/23/2026', time: '6:04 PM IST', type: 'all', preview: 'Infrastructure scaling plan for next quarter...', hasPoints: true, hasActions: false, hasTranscript: true },
+  ];
+
+  const keyPointsData = [
+    'A meeting with seven to eight people was recorded using a phone placed in the middle of the conference room.',
+    'Permission was obtained from participants before recording, and the resulting audio quality was excellent.',
+    'The transcript generated was very clear, even considering potential accent challenges.',
+    'There was previous experience with transcription tools (like ChatGPT) having issues with accents.',
+    'Previously, there was a "record" button available in the interface, but changes in the system were noticed (such as interface changes or button locations).',
+    'Live transcription and recording functions are now available together.',
+    'Multiple meeting transcripts are accessible, and the user navigates them via a section called "conversations," which has been renamed.',
+    'All previous meetings and their transcripts are stored under "conversations."',
+    'Users can ask questions across all meeting transcripts or about specific meetings, and the system will provide relevant answers.',
+    'After a series of meetings, the system can answer questions about what was discussed in any given session.',
+  ];
+
+  const actionItemsData = [
+    { text: 'Review and finalize the Q1 product roadmap document', assignee: 'John D.', priority: 'high', done: false },
+    { text: 'Schedule follow-up meeting with the design team to review UI changes', assignee: 'Sarah M.', priority: 'med', done: false },
+    { text: 'Update the transcription service documentation with new features', assignee: 'Alex C.', priority: 'low', done: true },
+    { text: 'Test audio quality with different microphone configurations', assignee: 'Maria G.', priority: 'med', done: false },
+    { text: 'Share the conversation summary with stakeholders', assignee: 'Siva R.', priority: 'high', done: false },
+  ];
+
+  const transcriptData = [
+    { time: '00:00:12', speaker: 'Speaker 1', cls: 'speaker-1', text: 'Good morning everyone. Thanks for joining. Let me start by going over what we discussed last week about the recording setup.' },
+    { time: '00:00:34', speaker: 'Speaker 2', cls: 'speaker-2', text: 'Yeah, I tested the phone placement in the middle of the conference room and the audio quality was surprisingly good.' },
+    { time: '00:01:02', speaker: 'Speaker 3', cls: 'speaker-3', text: 'I was worried about the accents being an issue since we had problems with ChatGPT transcription before, but this time it was very clear.' },
+    { time: '00:01:28', speaker: 'Speaker 1', cls: 'speaker-1', text: 'Great to hear. We also made sure to get permission from all participants before we started recording.' },
+    { time: '00:02:15', speaker: 'Speaker 4', cls: 'speaker-4', text: 'I noticed the interface has changed a bit. The record button used to be in a different place. Where is it now?' },
+    { time: '00:02:45', speaker: 'Speaker 2', cls: 'speaker-2', text: 'It\'s been moved to the top bar. And now we have live transcription running alongside the recording, which is a nice improvement.' },
+    { time: '00:03:18', speaker: 'Speaker 1', cls: 'speaker-1', text: 'All of our previous meetings are stored under the conversations section. You can search through any of them.' },
+    { time: '00:03:52', speaker: 'Speaker 3', cls: 'speaker-3', text: 'The best part is being able to ask questions about specific meetings or across all of them. The system provides really relevant answers.' },
+  ];
+
+  let selectedConvs = new Set();
+  let activeConvId = null;
+  let currentFilter = 'all';
+  let currentDetailTab = 'keypoints';
+  let zoomLevel = 100;
+  let isRecording = false;
+  let isUploadVisible = false;
+
+  // ========== RENDER FUNCTIONS ==========
+  function renderConvList() {
+    const list = document.getElementById('conv-list');
+    const search = document.getElementById('conv-search').value.toLowerCase();
+    let filtered = conversations.filter(c => {
+      if (currentFilter === 'grouped') return c.type === 'grouped';
+      if (currentFilter === 'shared') return c.type === 'shared';
+      return true;
+    }).filter(c => c.title.toLowerCase().includes(search) || c.preview.toLowerCase().includes(search));
+
+    list.innerHTML = filtered.map(c => `
+      <div class="conv-item ${activeConvId === c.id ? 'active' : ''} ${selectedConvs.has(c.id) ? 'selected' : ''}" onclick="selectConv(${c.id})">
+        <div class="conv-checkbox ${selectedConvs.has(c.id) ? 'checked' : ''}" onclick="event.stopPropagation(); toggleConvCheck(${c.id})"></div>
+        <div class="conv-icon ${c.type === 'grouped' ? 'grouped' : c.type === 'shared' ? 'shared' : ''}">
+          ${c.type === 'grouped' ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>' : c.type === 'shared' ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>' : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>'}
+        </div>
+        <div class="conv-body">
+          <div class="conv-title">${c.title}</div>
+          <div class="conv-meta">
+            <span class="conv-meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${c.date}</span>
+            <span class="conv-meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${c.time}</span>
+          </div>
+          <div class="conv-preview">${c.preview}</div>
+          <div class="conv-tags">
+            ${c.hasPoints ? '<span class="conv-tag conv-tag-points">Key Points</span>' : ''}
+            ${c.hasActions ? '<span class="conv-tag conv-tag-actions">Action Items</span>' : ''}
+            ${c.hasTranscript ? '<span class="conv-tag conv-tag-transcript">Transcript</span>' : ''}
+          </div>
+        </div>
+        <div class="conv-actions">
+          <button class="conv-action-btn" onclick="event.stopPropagation(); renameConv(${c.id})" title="Rename">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="conv-action-btn danger" onclick="event.stopPropagation(); deleteConv(${c.id})" title="Delete">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
+        </div>
+      </div>
+    `).join('');
+
+    // Update counts
+    document.getElementById('count-all').textContent = conversations.length;
+    document.getElementById('count-grouped').textContent = conversations.filter(c => c.type === 'grouped').length;
+    document.getElementById('count-shared').textContent = conversations.filter(c => c.type === 'shared').length;
+  }
+
+  function filterConvs() { renderConvList(); }
+
+  function setFilter(f, el) {
+    currentFilter = f;
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    renderConvList();
+  }
+
+  // ========== SELECTION ==========
+  function toggleConvCheck(id) {
+    if (selectedConvs.has(id)) selectedConvs.delete(id);
+    else selectedConvs.add(id);
+    updateBulkBar();
+    renderConvList();
+  }
+
+  function updateBulkBar() {
+    const bar = document.getElementById('bulk-bar');
+    if (selectedConvs.size > 0) {
+      bar.classList.add('visible');
+      document.getElementById('selected-count').textContent = selectedConvs.size + ' selected';
+    } else {
+      bar.classList.remove('visible');
+    }
+  }
+
+  // ========== SELECT CONVERSATION ==========
+  function selectConv(id) {
+    activeConvId = id;
+    const c = conversations.find(x => x.id === id);
+    renderConvList();
+    document.getElementById('detail-empty').style.display = 'none';
+    const dv = document.getElementById('detail-view');
+    dv.style.display = 'flex';
+    document.getElementById('detail-title').textContent = c.title;
+    document.getElementById('detail-title').style.display = 'inline';
+    document.getElementById('rename-input').style.display = 'none';
+    document.getElementById('delete-conv-confirm').classList.remove('visible');
+    document.getElementById('detail-success').classList.remove('visible');
+    document.getElementById('search-bar').classList.remove('visible');
+    renderDetailTabs();
+  }
+
+  function renderDetailTabs() {
+    // Key Points
+    document.getElementById('tab-keypoints').innerHTML = `
+      <div class="section-header">
+        <div class="section-title"><svg viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Key Points <span class="section-count">(${keyPointsData.length})</span></div>
+      </div>
+      ${keyPointsData.map((p, i) => `
+        <div class="key-point">
+          <div class="kp-number">${i + 1}</div>
+          <div class="kp-text">${p}</div>
+        </div>
+      `).join('')}
+    `;
+
+    // Action Items
+    document.getElementById('tab-actions').innerHTML = `
+      <div class="section-header">
+        <div class="section-title"><svg viewBox="0 0 24 24" fill="none" stroke="#1e40af" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Action Items <span class="section-count">(${actionItemsData.length})</span></div>
+      </div>
+      ${actionItemsData.map((a, i) => `
+        <div class="action-item">
+          <div class="ai-checkbox ${a.done ? 'done' : ''}" onclick="toggleAction(${i})"></div>
+          <div class="ai-body">
+            <div class="ai-text ${a.done ? 'done' : ''}">${a.text}</div>
+            <div style="display:flex;gap:6px;align-items:center;margin-top:6px">
+              <span class="ai-assignee"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${a.assignee}</span>
+              <span class="ai-priority priority-${a.priority}">${a.priority === 'high' ? 'High' : a.priority === 'med' ? 'Medium' : 'Low'}</span>
+            </div>
+          </div>
+        </div>
+      `).join('')}
+    `;
+
+    // Transcript
+    document.getElementById('tab-transcript').innerHTML = `
+      <div class="section-header">
+        <div class="section-title"><svg viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Transcript</div>
+      </div>
+      ${transcriptData.map(t => `
+        <div class="transcript-entry">
+          <div class="transcript-time">${t.time}</div>
+          <div class="transcript-bubble">
+            <div class="transcript-speaker ${t.cls}">${t.speaker}</div>
+            <div class="transcript-text">${t.text}</div>
+          </div>
+        </div>
+      `).join('')}
+    `;
+  }
+
+  function switchDetailTab(tab, el) {
+    currentDetailTab = tab;
+    document.querySelectorAll('.detail-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('tab-keypoints').style.display = tab === 'keypoints' ? 'block' : 'none';
+    document.getElementById('tab-actions').style.display = tab === 'actions' ? 'block' : 'none';
+    document.getElementById('tab-transcript').style.display = tab === 'transcript' ? 'block' : 'none';
+  }
+
+  // ========== ACTIONS ==========
+  function toggleAction(i) {
+    actionItemsData[i].done = !actionItemsData[i].done;
+    renderDetailTabs();
+    document.getElementById('tab-keypoints').style.display = currentDetailTab === 'keypoints' ? 'block' : 'none';
+    document.getElementById('tab-actions').style.display = currentDetailTab === 'actions' ? 'block' : 'none';
+    document.getElementById('tab-transcript').style.display = currentDetailTab === 'transcript' ? 'block' : 'none';
+  }
+
+  // ========== RENAME ==========
+  function startRename() {
+    const title = document.getElementById('detail-title');
+    const input = document.getElementById('rename-input');
+    input.value = title.textContent;
+    title.style.display = 'none';
+    input.style.display = 'inline-block';
+    input.focus();
+    input.select();
+  }
+
+  function saveRename() {
+    const input = document.getElementById('rename-input');
+    const title = document.getElementById('detail-title');
+    const c = conversations.find(x => x.id === activeConvId);
+    if (input.value.trim()) { c.title = input.value.trim(); title.textContent = c.title; }
+    input.style.display = 'none';
+    title.style.display = 'inline';
+    renderConvList();
+    showSuccess('Conversation renamed!');
+  }
+
+  function cancelRename() {
+    document.getElementById('rename-input').style.display = 'none';
+    document.getElementById('detail-title').style.display = 'inline';
+  }
+
+  function renameConv(id) {
+    selectConv(id);
+    setTimeout(() => startRename(), 100);
+  }
+
+  // ========== DELETE ==========
+  function deleteConv(id) {
+    selectConv(id);
+    setTimeout(() => { document.getElementById('delete-conv-confirm').classList.add('visible'); }, 100);
+  }
+
+  function hideDeleteConv() { document.getElementById('delete-conv-confirm').classList.remove('visible'); }
+
+  function confirmDeleteConv() {
+    conversations = conversations.filter(c => c.id !== activeConvId);
+    activeConvId = null;
+    renderConvList();
+    document.getElementById('detail-view').style.display = 'none';
+    document.getElementById('detail-empty').style.display = 'flex';
+    document.getElementById('detail-empty').innerHTML = `
+      <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      <h3 style="color:#059669">Conversation deleted</h3>
+      <p>Select another conversation to continue.</p>
+    `;
+    setTimeout(() => {
+      document.getElementById('detail-empty').innerHTML = `
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <h3>Select a conversation</h3>
+        <p>Choose a conversation from the list to view key points, action items, and full transcript.</p>
+      `;
+    }, 2500);
+  }
+
+  // ========== BULK ACTIONS ==========
+  function bulkGroup() {
+    showSuccess(`${selectedConvs.size} conversations grouped!`);
+    selectedConvs.clear();
+    updateBulkBar();
+    renderConvList();
+  }
+
+  function bulkMerge() {
+    if (selectedConvs.size < 2) { alert('Select at least 2 conversations to merge.'); return; }
+    showSuccess(`${selectedConvs.size} conversations merged!`);
+    selectedConvs.clear();
+    updateBulkBar();
+    renderConvList();
+  }
+
+  function bulkDelete() {
+    if (!confirm(`Delete ${selectedConvs.size} conversations? This cannot be undone.`)) return;
+    conversations = conversations.filter(c => !selectedConvs.has(c.id));
+    if (selectedConvs.has(activeConvId)) {
+      activeConvId = null;
+      document.getElementById('detail-view').style.display = 'none';
+      document.getElementById('detail-empty').style.display = 'flex';
+    }
+    selectedConvs.clear();
+    updateBulkBar();
+    renderConvList();
+  }
+
+  // ========== RECORDING ==========
+  function toggleRecording() {
+    if (!isRecording) {
+      isRecording = true;
+      document.getElementById('recording-area').classList.add('visible');
+      document.getElementById('record-btn').classList.add('recording');
+      document.getElementById('record-btn-text').textContent = 'Recording...';
+      generateWaveform();
+    }
+  }
+
+  function stopRecording() {
+    isRecording = false;
+    document.getElementById('recording-area').classList.remove('visible');
+    document.getElementById('record-btn').classList.remove('recording');
+    document.getElementById('record-btn-text').textContent = 'Transcribe';
+    // Simulate adding new conversation
+    const now = new Date();
+    conversations.unshift({
+      id: Date.now(), title: `Conv_${now.toISOString().slice(0,10).replace(/-/g,'-')}_new`,
+      date: now.toLocaleDateString(), time: now.toLocaleTimeString(),
+      type: 'all', preview: 'New recording — processing transcript...',
+      hasPoints: false, hasActions: false, hasTranscript: true
+    });
+    renderConvList();
+  }
+
+  function pauseRecording() { /* Pause toggle placeholder */ }
+
+  function generateWaveform() {
+    const wf = document.getElementById('rec-waveform');
+    let bars = '';
+    for (let i = 0; i < 40; i++) {
+      bars += `<div class="rec-bar" style="animation-delay:${i * 0.05}s; height:${8 + Math.random() * 20}px"></div>`;
+    }
+    wf.innerHTML = bars;
+  }
+
+  // ========== UPLOAD ==========
+  function toggleUpload() {
+    isUploadVisible = !isUploadVisible;
+    document.getElementById('upload-area').classList.toggle('visible', isUploadVisible);
+  }
+
+  // ========== TOOLS ==========
+  function toggleSearch() {
+    document.getElementById('search-bar').classList.toggle('visible');
+  }
+
+  function searchInContent(q) { /* Search highlight placeholder */ }
+
+  function zoomIn() {
+    zoomLevel = Math.min(150, zoomLevel + 10);
+    document.getElementById('zoom-val').textContent = zoomLevel + '%';
+    document.getElementById('detail-content').style.fontSize = (zoomLevel / 100) + 'em';
+  }
+
+  function zoomOut() {
+    zoomLevel = Math.max(70, zoomLevel - 10);
+    document.getElementById('zoom-val').textContent = zoomLevel + '%';
+    document.getElementById('detail-content').style.fontSize = (zoomLevel / 100) + 'em';
+  }
+
+  function exportConv() { showSuccess('Export started — file will download shortly.'); }
+
+  function copyContent() { showSuccess('Copied to clipboard!'); }
+
+  function showSuccess(msg) {
+    const b = document.getElementById('detail-success');
+    document.getElementById('detail-success-text').textContent = msg;
+    b.classList.add('visible');
+    setTimeout(() => b.classList.remove('visible'), 3000);
+  }
+
+  // ========== INIT ==========
+  renderConvList();
+</script>
+</body>
+</html>

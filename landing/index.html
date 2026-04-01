@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cognia SDLC Crew — AI-Powered SDLC Planning & Orchestration</title>
+  <meta name="description" content="Visual SDLC orchestration platform with AI agents. Plan features with Tech Lead, Developer, and QA agents working together.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #f5f0e8;
+      --bg-card: #eae5dc;
+      --black: #191919;
+      --text: #191919;
+      --text-secondary: #6b635a;
+      --text-dim: #9b9488;
+      --white: #ffffff;
+      --border: rgba(25,25,25,0.08);
+      --sans: 'Inter', -apple-system, sans-serif;
+      --serif: 'Source Serif 4', Georgia, serif;
+    }
+
+    body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.6; }
+    .container { max-width: 1140px; margin: 0 auto; padding: 0 32px; }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--bg); border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 60px; max-width: 1140px; margin: 0 auto; padding: 0 32px;
+    }
+    .nav-logo {
+      font-family: var(--sans); font-size: 15px; font-weight: 600;
+      color: var(--black); text-decoration: none; letter-spacing: -0.02em;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .nav-mark {
+      width: 28px; height: 28px; border-radius: 7px; background: var(--black);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--bg); font-family: var(--serif); font-size: 15px; font-weight: 600;
+    }
+    .nav-links { display: flex; gap: 28px; }
+    .nav-links a {
+      color: var(--text-secondary); text-decoration: none; font-size: 14px;
+      font-weight: 500; transition: color 0.15s;
+    }
+    .nav-links a:hover { color: var(--black); }
+    .nav-cta {
+      background: var(--black); color: var(--bg); border: none;
+      padding: 8px 20px; border-radius: 6px; font-size: 13px; font-weight: 600;
+      cursor: pointer; text-decoration: none; transition: opacity 0.15s;
+    }
+    .nav-cta:hover { opacity: 0.8; }
+
+    /* ── Hero ── */
+    .hero { padding: 110px 0 40px; }
+    .hero-content { max-width: 680px; }
+    .hero h1 {
+      font-family: var(--serif); font-size: clamp(36px, 5vw, 56px);
+      font-weight: 400; line-height: 1.15; color: var(--black);
+      margin-bottom: 24px;
+    }
+    .hero p {
+      font-size: 18px; color: var(--text-secondary); max-width: 740px;
+      line-height: 1.7; margin-bottom: 36px;
+    }
+    .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-black {
+      background: var(--black); color: var(--bg); border: none;
+      padding: 12px 28px; border-radius: 6px; font-size: 14px; font-weight: 600;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+      transition: opacity 0.15s; cursor: pointer;
+    }
+    .btn-black:hover { opacity: 0.8; }
+    .btn-ghost {
+      background: none; color: var(--text); border: 1px solid var(--border);
+      padding: 12px 28px; border-radius: 6px; font-size: 14px; font-weight: 500;
+      text-decoration: none; transition: border-color 0.15s; cursor: pointer;
+    }
+    .btn-ghost:hover { border-color: rgba(25,25,25,0.25); }
+
+    /* ── Preview ── */
+    .preview-section { padding: 0 0 40px; }
+    .preview-frame {
+      border-radius: 16px; overflow: hidden; background: var(--bg-card);
+      border: 1px solid var(--border);
+    }
+    .preview-bar {
+      height: 40px; display: flex; align-items: center; padding: 0 16px; gap: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .preview-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .preview-body {
+      padding: 48px 32px; display: flex; flex-direction: column;
+      align-items: center; gap: 14px; min-height: 340px;
+    }
+    .wf-node {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 24px; border-radius: 10px; background: var(--bg);
+      border: 1px solid var(--border); width: 300px;
+      animation: slideIn 0.5s ease-out both;
+    }
+    .wf-node:nth-child(1) { animation-delay: 0.1s; }
+    .wf-node:nth-child(3) { animation-delay: 0.25s; }
+    .wf-node:nth-child(5) { animation-delay: 0.4s; }
+    @keyframes slideIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+    .wf-avatar {
+      width: 34px; height: 34px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: white;
+    }
+    .wf-info { flex: 1; }
+    .wf-name { font-size: 13px; font-weight: 600; color: var(--black); }
+    .wf-desc { font-size: 11px; color: var(--text-dim); }
+    .wf-badge {
+      font-size: 10px; padding: 3px 10px; border-radius: 100px; font-weight: 600;
+    }
+    .wf-line { width: 1px; height: 18px; background: rgba(25,25,25,0.12); }
+
+    /* ── Canvas Workflow ── */
+    .canvas-body {
+      position: relative; min-height: 220px; background: var(--bg);
+      overflow: hidden; padding: 40px 0;
+    }
+    .canvas-grid { position: absolute; inset: 0; }
+    .canvas-flow {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0; position: relative; z-index: 1; padding: 0 24px;
+    }
+    .cn-connector {
+      flex-shrink: 0; display: flex; align-items: center;
+      animation: nodeAppear 0.4s ease-out both;
+    }
+    .cn-connector:nth-of-type(2) { animation-delay: 0.2s; }
+    .cn-connector:nth-of-type(4) { animation-delay: 0.4s; }
+    .canvas-node {
+      position: relative; width: 260px; flex-shrink: 0;
+      animation: nodeAppear 0.6s ease-out both;
+    }
+    .canvas-node.node-1 { animation-delay: 0.1s; }
+    .canvas-node.node-2 { animation-delay: 0.3s; }
+    .canvas-node.node-3 { animation-delay: 0.5s; }
+    @keyframes nodeAppear { from { opacity:0; transform:scale(0.95) translateY(8px); } to { opacity:1; transform:scale(1) translateY(0); } }
+    .cn-inner {
+      display: flex; align-items: center; gap: 12px;
+      padding: 16px 18px; border-radius: 10px;
+      background: var(--white); border: 2px solid #059669;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      position: relative;
+    }
+    .cn-avatar {
+      width: 42px; height: 42px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; color: white; flex-shrink: 0;
+    }
+    .cn-info { flex: 1; min-width: 0; }
+    .cn-label { font-size: 14px; font-weight: 600; color: var(--black); }
+    .cn-agent { font-size: 12px; color: #059669; }
+    .cn-file { font-size: 11px; color: var(--text-dim); }
+    .cn-check { color: #059669; font-size: 18px; flex-shrink: 0; }
+    .cn-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #818cf8; border: 2px solid var(--white);
+      position: absolute; left: 50%; transform: translateX(-50%);
+      z-index: 2;
+    }
+    .cn-dot-top { top: -5px; }
+    .cn-dot-bottom { bottom: -5px; }
+
+    /* ── Section shared ── */
+    .section { padding: 56px 0; }
+    .section + .section { border-top: 1px solid var(--border); }
+    .section-eyebrow {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--text-dim); margin-bottom: 12px;
+    }
+    .section-heading {
+      font-family: var(--serif); font-size: clamp(28px, 3.5vw, 40px);
+      font-weight: 400; color: var(--black); margin-bottom: 12px; line-height: 1.2;
+    }
+    .section-sub {
+      font-size: 16px; color: var(--text-secondary); max-width: 480px;
+      line-height: 1.7; margin-bottom: 32px;
+    }
+
+    /* ── Agents ── */
+    .agents-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .agent-card {
+      background: var(--bg-card); border-radius: 12px; padding: 32px 24px;
+      border: 1px solid var(--border); transition: transform 0.2s;
+    }
+    .agent-card:hover { transform: translateY(-3px); }
+    .agent-avatar {
+      width: 40px; height: 40px; border-radius: 10px; margin-bottom: 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; color: white;
+    }
+    .agent-card h3 { font-family: var(--serif); font-size: 20px; font-weight: 400; margin-bottom: 8px; }
+    .agent-card p { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px; }
+    .agent-card ul { list-style: none; margin-bottom: 20px; }
+    .agent-card ul li {
+      font-size: 13px; color: var(--text-secondary); padding: 4px 0;
+      display: flex; align-items: flex-start; gap: 8px;
+    }
+    .agent-card ul li::before {
+      content: ''; width: 5px; height: 5px; border-radius: 50%;
+      background: var(--black); flex-shrink: 0; margin-top: 7px;
+    }
+    .agent-link {
+      font-size: 13px; font-weight: 600; color: var(--black);
+      text-decoration: none; display: inline-flex; align-items: center; gap: 4px;
+    }
+    .agent-link:hover { text-decoration: underline; }
+
+    /* ── Features ── */
+    .feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .feat {
+      background: var(--bg-card); border-radius: 12px; padding: 28px 22px;
+      border: 1px solid var(--border); transition: transform 0.2s;
+    }
+    .feat:hover { transform: translateY(-2px); }
+    .feat-icon { font-size: 22px; margin-bottom: 14px; }
+    .feat h3 { font-size: 15px; font-weight: 600; margin-bottom: 6px; color: var(--black); }
+    .feat p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+    /* ── Steps ── */
+    .steps { max-width: 640px; }
+    .step { display: flex; gap: 20px; padding: 28px 0; }
+    .step + .step { border-top: 1px solid var(--border); }
+    .step-n {
+      width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+      background: var(--black); color: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700;
+    }
+    .step h3 { font-family: var(--serif); font-size: 18px; font-weight: 400; margin-bottom: 4px; }
+    .step p { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+
+    /* ── Download ── */
+    .dl-cards { display: flex; gap: 16px; flex-wrap: wrap; }
+    .dl-card {
+      flex: 1; min-width: 200px; background: var(--bg-card); border-radius: 12px;
+      padding: 32px 28px; border: 1px solid var(--border);
+      text-decoration: none; color: var(--black); transition: transform 0.2s;
+    }
+    .dl-card:hover { transform: translateY(-3px); }
+    .dl-card-icon { font-size: 32px; margin-bottom: 14px; }
+    .dl-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+    .dl-card p { font-size: 12px; color: var(--text-dim); margin-bottom: 16px; }
+    .dl-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--black); color: var(--bg); padding: 9px 20px;
+      border-radius: 6px; font-size: 12px; font-weight: 600;
+    }
+
+    /* ── Footer ── */
+    footer {
+      padding: 48px 0; border-top: 1px solid var(--border);
+    }
+    .footer-inner {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      flex-wrap: wrap; gap: 32px;
+    }
+    .footer-left h4 {
+      font-family: var(--serif); font-size: 22px; font-weight: 400;
+      color: var(--black); margin-bottom: 8px; max-width: 320px; line-height: 1.3;
+    }
+    .footer-left p { font-size: 13px; color: var(--text-dim); }
+    .footer-links { display: flex; gap: 48px; }
+    .footer-col h5 {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--text-dim); margin-bottom: 12px;
+    }
+    .footer-col a {
+      display: block; font-size: 14px; color: var(--text-secondary);
+      text-decoration: none; padding: 4px 0; transition: color 0.15s;
+    }
+    .footer-col a:hover { color: var(--black); }
+    .footer-bottom {
+      margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border);
+      font-size: 12px; color: var(--text-dim);
+    }
+
+    @media (max-width: 768px) {
+      .agents-grid, .feat-grid { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+      .footer-links { flex-direction: column; gap: 24px; }
+      .dl-cards { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">
+        Cognia SDLC Crew
+      </a>
+      <div class="nav-links">
+        <a href="#agents">Agents</a>
+        <a href="#features">Features</a>
+        <a href="#how">How It Works</a>
+        <a href="#download">Download</a>
+      </div>
+      <a href="#download" class="nav-cta">Download</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <h1>AI agents that plan your software before a single line is written.</h1>
+        <p>
+          Define any number of custom AI agents — from Tech Leads and Developers to Security Auditors and DB Architects — and orchestrate them in visual pipelines. Powered by the Claude SDK, each agent produces structured planning documents you can hand off to Claude Code to implement.
+        </p>
+        <div class="hero-btns">
+          <a href="#download" class="btn-black">
+            Download free <span>&rarr;</span>
+          </a>
+          <a href="#how" class="btn-ghost">How it works</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Preview: Workflow Canvas -->
+  <section class="preview-section">
+    <div class="container">
+      <div class="preview-frame">
+        <div class="preview-bar">
+          <div class="preview-dot" style="background:#ff5f57"></div>
+          <div class="preview-dot" style="background:#febc2e"></div>
+          <div class="preview-dot" style="background:#28c840"></div>
+        </div>
+        <div class="canvas-body">
+          <!-- Grid background -->
+          <svg class="canvas-grid" width="100%" height="100%">
+            <defs>
+              <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(25,25,25,0.04)" stroke-width="1"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)"/>
+          </svg>
+          <!-- Horizontal flow -->
+          <div class="canvas-flow">
+            <div class="canvas-node node-1">
+              <div class="cn-dot cn-dot-top"></div>
+              <div class="cn-inner">
+                <div class="cn-avatar" style="background:#6366f1">TL</div>
+                <div class="cn-info">
+                  <div class="cn-label">Architecture & Design</div>
+                  <div class="cn-agent">Technical Lead</div>
+                  <div class="cn-file">architecture-design.md</div>
+                </div>
+                <div class="cn-check">&#10003;</div>
+              </div>
+              <div class="cn-dot cn-dot-bottom"></div>
+            </div>
+            <div class="cn-connector">
+              <svg width="60" height="80" viewBox="0 0 60 80">
+                <path d="M0 70 C20 70, 20 10, 40 10 L60 10" fill="none" stroke="#059669" stroke-width="2"/>
+                <circle cx="0" cy="70" r="4" fill="#818cf8"/>
+                <circle cx="60" cy="10" r="4" fill="#818cf8"/>
+              </svg>
+            </div>
+            <div class="canvas-node node-2">
+              <div class="cn-dot cn-dot-top"></div>
+              <div class="cn-inner">
+                <div class="cn-avatar" style="background:#059669">DE</div>
+                <div class="cn-info">
+                  <div class="cn-label">Implementation Plan</div>
+                  <div class="cn-agent">Developer</div>
+                  <div class="cn-file">implementation-plan.md</div>
+                </div>
+                <div class="cn-check">&#10003;</div>
+              </div>
+              <div class="cn-dot cn-dot-bottom"></div>
+            </div>
+            <div class="cn-connector">
+              <svg width="60" height="80" viewBox="0 0 60 80">
+                <path d="M0 70 C20 70, 20 10, 40 10 L60 10" fill="none" stroke="#059669" stroke-width="2"/>
+                <circle cx="0" cy="70" r="4" fill="#818cf8"/>
+                <circle cx="60" cy="10" r="4" fill="#818cf8"/>
+              </svg>
+            </div>
+            <div class="canvas-node node-3">
+              <div class="cn-dot cn-dot-top"></div>
+              <div class="cn-inner">
+                <div class="cn-avatar" style="background:#d97706">QA</div>
+                <div class="cn-info">
+                  <div class="cn-label">QA Testing & Review</div>
+                  <div class="cn-agent">QA Engineer</div>
+                  <div class="cn-file">qa-report.md</div>
+                </div>
+                <div class="cn-check">&#10003;</div>
+              </div>
+              <div class="cn-dot cn-dot-bottom"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Agents -->
+  <section class="section" id="agents">
+    <div class="container">
+      <div class="section-eyebrow">AI Agents</div>
+      <h2 class="section-heading">Specialized agents that<br>plan your features.</h2>
+      <p class="section-sub">Each agent has a distinct role in the software development lifecycle, collaborating to produce plans a developer can follow immediately.</p>
+      <div class="agents-grid">
+        <div class="agent-card">
+          <div class="agent-avatar" style="background:#6366f1">TL</div>
+          <h3>Technical Lead</h3>
+          <p>Designs architecture, defines API contracts, database schemas, and creates a file-by-file implementation plan.</p>
+          <ul>
+            <li>Architecture design documents</li>
+            <li>Database schema definitions</li>
+            <li>API contract specifications</li>
+          </ul>
+          <a href="#download" class="agent-link">Try free &rarr;</a>
+        </div>
+        <div class="agent-card">
+          <div class="agent-avatar" style="background:#059669">DE</div>
+          <h3>Developer</h3>
+          <p>Creates detailed implementation plans with function signatures, validation rules, and step-by-step instructions.</p>
+          <ul>
+            <li>Task breakdown with estimates</li>
+            <li>Code specifications & types</li>
+            <li>Integration blueprints</li>
+          </ul>
+          <a href="#download" class="agent-link">Try free &rarr;</a>
+        </div>
+        <div class="agent-card">
+          <div class="agent-avatar" style="background:#d97706">QA</div>
+          <h3>QA Engineer</h3>
+          <p>Reviews architecture and plans for edge cases, security issues, and produces comprehensive test plans.</p>
+          <ul>
+            <li>Pre-implementation checklists</li>
+            <li>Test case generation</li>
+            <li>Security & edge case review</li>
+          </ul>
+          <a href="#download" class="agent-link">Try free &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="section" id="features">
+    <div class="container">
+      <div class="section-eyebrow">Platform</div>
+      <h2 class="section-heading">Everything you need to<br>orchestrate development.</h2>
+      <p class="section-sub">A complete SDLC planning platform that turns feature requests into actionable development plans.</p>
+      <div class="feat-grid">
+        <div class="feat">
+          <div class="feat-icon">&#9881;</div>
+          <h3>Visual Workflow Builder</h3>
+          <p>Drag-and-drop pipeline designer. Connect agents in sequence or parallel. Save and reuse workflows.</p>
+        </div>
+        <div class="feat">
+          <div class="feat-icon">&#8634;</div>
+          <h3>QA Feedback Loop</h3>
+          <p>QA reviews the plan and sends issues back. Automatic reinforcement cycles until the plan is approved.</p>
+        </div>
+        <div class="feat">
+          <div class="feat-icon">&#10140;</div>
+          <h3>Claude Code Handoff</h3>
+          <p>One-click handoff. Planning docs saved to your project and Claude Code implements them step by step.</p>
+        </div>
+        <div class="feat">
+          <div class="feat-icon">&#9734;</div>
+          <h3>Custom Agents</h3>
+          <p>Create specialized agents — Mobile Dev, Security Auditor, DB Admin — each with custom prompts.</p>
+        </div>
+        <div class="feat">
+          <div class="feat-icon">&#128279;</div>
+          <h3>Task Manager Import</h3>
+          <p>Import feature stories from your task management tool. Turn tickets into plans with one click.</p>
+        </div>
+        <div class="feat">
+          <div class="feat-icon">&#9998;</div>
+          <h3>Editable Reports</h3>
+          <p>Review, edit, and approve each agent's output before sending to implementation.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it Works -->
+  <section class="section" id="how">
+    <div class="container">
+      <div class="section-eyebrow">Workflow</div>
+      <h2 class="section-heading">From feature request<br>to implementation plan.</h2>
+      <p class="section-sub">Four steps from idea to code-ready plan.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div>
+            <h3>Describe the feature</h3>
+            <p>Enter a description or import a story from your task manager. Add specs, constraints, and project context.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div>
+            <h3>Agents plan together</h3>
+            <p>Tech Lead designs architecture, Developer creates implementation plan, QA produces test plan. If QA finds issues, Developer revises automatically.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div>
+            <h3>Review and edit</h3>
+            <p>Each agent's output in an editable view. Tweak the architecture, adjust the implementation plan — before any code is written.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">4</div>
+          <div>
+            <h3>Hand off to Claude Code</h3>
+            <p>Click "Open Claude Desktop" or "Open in Terminal". Planning docs saved to your project, Claude Code implements step by step.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Download -->
+  <section class="section" id="download">
+    <div class="container">
+      <div class="section-eyebrow">Download</div>
+      <h2 class="section-heading">Get Cognia SDLC Crew.</h2>
+      <p class="section-sub">Free to download. Bring your own Claude API key. Available for Mac, Windows, and Linux.</p>
+
+      <!-- Auto-detected OS primary download -->
+      <div id="auto-download" style="margin-bottom: 32px; padding: 24px; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+        <div>
+          <div style="font-size: 13px; color: var(--text-dim); margin-bottom: 4px;">Detected your system</div>
+          <div style="font-size: 18px; font-weight: 600;" id="detected-os-name">Detecting...</div>
+        </div>
+        <a id="auto-download-btn" href="#" class="btn-black" style="padding: 14px 32px;">
+          Download for <span id="detected-os-short">your OS</span> <span>&rarr;</span>
+        </a>
+      </div>
+
+      <!-- All platforms -->
+      <div style="font-size: 12px; color: var(--text-dim); margin-bottom: 12px;">All platforms</div>
+      <div class="dl-cards">
+        <a href="/downloads/Cognia-SDLC-Crew.dmg" class="dl-card" id="dl-mac">
+          <div class="dl-card-icon">&#63743;</div>
+          <h3>macOS</h3>
+          <p>Apple Silicon & Intel</p>
+          <div class="dl-btn">Download .dmg <span>&rarr;</span></div>
+        </a>
+        <a href="/downloads/Cognia-SDLC-Crew-Setup.exe" class="dl-card" id="dl-win">
+          <div class="dl-card-icon">&#8862;</div>
+          <h3>Windows</h3>
+          <p>Windows 10 & 11</p>
+          <div class="dl-btn">Download .exe <span>&rarr;</span></div>
+        </a>
+        <a href="/downloads/Cognia-SDLC-Crew.AppImage" class="dl-card" id="dl-linux">
+          <div class="dl-card-icon">&#9881;</div>
+          <h3>Linux</h3>
+          <p>Ubuntu, Fedora, Arch</p>
+          <div class="dl-btn">Download .AppImage <span>&rarr;</span></div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- OS Detection Script -->
+  <script>
+    (function() {
+      const ua = navigator.userAgent.toLowerCase();
+      const platform = navigator.platform?.toLowerCase() || '';
+      const el = {
+        name: document.getElementById('detected-os-name'),
+        short: document.getElementById('detected-os-short'),
+        btn: document.getElementById('auto-download-btn'),
+        card: document.getElementById('auto-download'),
+      };
+
+      let os = 'unknown', label = '', shortLabel = '', href = '#', cardId = '';
+
+      if (ua.includes('mac') || platform.includes('mac')) {
+        os = 'mac'; label = 'macOS (Apple Silicon & Intel)'; shortLabel = 'macOS';
+        href = '/downloads/Cognia-SDLC-Crew.dmg'; cardId = 'dl-mac';
+      } else if (ua.includes('win')) {
+        os = 'win'; label = 'Windows 10 & 11'; shortLabel = 'Windows';
+        href = '/downloads/Cognia-SDLC-Crew-Setup.exe'; cardId = 'dl-win';
+      } else if (ua.includes('linux')) {
+        os = 'linux'; label = 'Linux (Ubuntu, Fedora, Arch)'; shortLabel = 'Linux';
+        href = '/downloads/Cognia-SDLC-Crew.AppImage'; cardId = 'dl-linux';
+      }
+
+      if (os !== 'unknown') {
+        el.name.textContent = label;
+        el.short.textContent = shortLabel;
+        el.btn.href = href;
+        // Highlight the matching card
+        var card = document.getElementById(cardId);
+        if (card) card.style.borderColor = '#191919';
+      } else {
+        el.card.style.display = 'none';
+      }
+    })();
+  </script>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-left">
+          <h4>We build AI tools to help teams ship software faster.</h4>
+          <p>Powered by Anthropic Claude</p>
+        </div>
+        <div class="footer-links">
+          <div class="footer-col">
+            <h5>Product</h5>
+            <a href="#agents">Agents</a>
+            <a href="#features">Features</a>
+            <a href="#download">Download</a>
+          </div>
+          <div class="footer-col">
+            <h5>Resources</h5>
+            <a href="#how">How It Works</a>
+            <a href="https://console.anthropic.com" target="_blank">Get API Key</a>
+            <a href="https://anthropic.com" target="_blank">Anthropic</a>
+          </div>
+          <div class="footer-col">
+            <h5>Company</h5>
+            <a href="#">CogniaIX</a>
+            <a href="#">Contact</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        &copy; 2026 CogniaIX. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
