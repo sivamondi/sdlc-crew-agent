@@ -6,8 +6,8 @@
 
 ## Video Walkthrough
 
-<video src="assets/sdlc-demo.mp4" controls width="100%">
-  <a href="assets/sdlc-demo.mp4">▶ Watch the demo (sdlc-demo.mp4)</a>
+<video src="https://github.com/user-attachments/assets/dc4630d3-5454-4d20-b0d8-5e94142144cb" controls width="100%">
+  <a href="https://github.com/user-attachments/assets/dc4630d3-5454-4d20-b0d8-5e94142144cb">▶ Watch the demo</a>
 </video>
 
 ---
