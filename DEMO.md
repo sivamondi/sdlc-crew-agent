@@ -6,8 +6,8 @@
 
 ## Video Walkthrough
 
-<video src="https://github.com/user-attachments/assets/dc4630d3-5454-4d20-b0d8-5e94142144cb" controls width="100%">
-  <a href="https://github.com/user-attachments/assets/dc4630d3-5454-4d20-b0d8-5e94142144cb">▶ Watch the demo</a>
+<video src="https://github.com/user-attachments/assets/ba64d401-b180-44fc-b5b7-a709c2ac62ce" controls width="100%">
+  <a href="https://github.com/user-attachments/assets/ba64d401-b180-44fc-b5b7-a709c2ac62ce">▶ Watch the demo</a>
 </video>
 
 ---
