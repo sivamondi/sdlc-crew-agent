@@ -6,10 +6,9 @@
 
 ## Video Walkthrough
 
-<!-- Add your video recording here -->
-<!-- Options: upload to Loom, YouTube, GitHub, or embed directly -->
-
-**[Video coming soon]**
+<video src="assets/sdlc-demo.mp4" controls width="100%">
+  <a href="assets/sdlc-demo.mp4">▶ Watch the demo (sdlc-demo.mp4)</a>
+</video>
 
 ---
 
